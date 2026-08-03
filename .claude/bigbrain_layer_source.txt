@@ -1,0 +1,1692 @@
+##### CELL 0 [code] #####
+import os
+os.chdir('/data100/home/dthbca/project/CellAlign')
+
+from CellAlign.plotting import *
+from CellAlign.parcellation import *
+from CellAlign.spins import *
+from CellAlign.datasets import *
+from CellAlign.utils import *
+
+import numpy as np
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.colors import TwoSlopeNorm, LinearSegmentedColormap, ListedColormap
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from collections import OrderedDict
+
+# --- fonts / Nature-style rcParams ------------------------------------------
+from matplotlib import font_manager
+font_path = '/data100/home/dthbca/tools/fonts/whitney.ttf'
+font_manager.fontManager.addfont(font_path)
+custom_font = font_manager.FontEntry(font_path).name
+plt.rcParams.update({
+    'font.family': custom_font,
+    'font.size': 12, 'font.weight': 'light',
+    'axes.titlesize': 12, 'svg.fonttype': 'none',
+    'axes.spines.top': False, 'axes.spines.right': False,
+    'axes.unicode_minus': False,
+})
+
+##### CELL 1 [markdown] #####
+# Load Layer Data
+
+##### CELL 2 [code] #####
+# --- constants shared across the notebook -----------------------------------
+LAYER_KEYS  = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6']          # file / column keys
+layer_names_roman = ['Layer I', 'Layer II', 'Layer III',
+                     'Layer IV', 'Layer V', 'Layer VI']
+
+# cell-type class grouping (drives heatmap column order + top colour bar)
+cls_def = {
+    'Excitatory': ['L2/3 IT', 'L4 IT', 'L5 IT', 'L6 IT', 'L6 IT Car3',
+                   'L5 ET', 'L5/6 NP', 'L6 CT', 'L6b'],
+    'Inhibitory': ['Lamp5_Lhx6', 'Lamp5', 'Pax6', 'Sncg', 'Vip',
+                   'Sst', 'Pvalb', 'Chandelier'],
+    'Non-neuron': ['Astro', 'Oligo', 'OPC', 'Micro-PVM', 'Endo', 'VLMC'],
+}
+cls_order  = ['Excitatory', 'Inhibitory', 'Non-neuron']
+cls_colors = {'Excitatory': '#C04535', 'Inhibitory': '#3D9156',
+              'Non-neuron': '#4A7BAF', 'Other': '#B0B0B0'}
+
+# Von Economo cortical-type palette (koniocortex -> agranular)
+econ_ctb_full = {1: 'Koniocortex', 2: 'Eulaminate III', 3: 'Eulaminate II',
+                 4: 'Eulaminate I', 5: 'Dysgranular', 6: 'Agranular'}
+cmap_ctb = ListedColormap(np.array(
+    [[127, 140, 172], [139, 167, 176], [171, 186, 162],
+     [218, 198, 153], [253, 211, 200], [252, 229, 252]]) / 255.0, name='ctb')
+
+ctype_map = pd.read_csv(
+    '/data100/home/dthbca/project/Macaque_ST/notebook/cluster_mapping_dict.csv',
+    index_col=0)
+
+##### CELL 3 [code] #####
+path = ('/data100/home/dthbca/project/CellAlign/CellAlign/datasets/'
+            'features/SpatialTranscriptomics/layer_data')
+data_list, region_names, ctype_names = [], None, None
+
+for layer in LAYER_KEYS:
+    fname = f'ctype_region_counts_D99_M1_{layer}.csv'
+    data = pd.read_csv(os.path.join(path, fname), index_col=0)
+    data = data.sort_index().fillna(0)
+    region_names = set(data.index) if region_names is None \
+        else region_names.union(set(data.index))
+    if ctype_names is None:
+        ctype_names = data.columns.tolist()
+    elif not all(data.columns == ctype_names):
+        data = data[ctype_names]
+    data_list.append(data)
+
+region_names = sorted(region_names)
+arr = np.stack([d.reindex(index=region_names, fill_value=0).values
+                for d in data_list], axis=0)      # (layer, region, ctype)
+arr = np.transpose(arr, (1, 0, 2))                # (region, layer, ctype)  <- canonical
+#return arr, ctype_names, region_names, LAYER_KEYS
+
+##### CELL 4 [code] #####
+counts = {
+    'counts' : arr,
+    'regions' : region_names,
+    'layers' : layer_names_roman,
+    'ctypes' : ctype_names,
+    'annot' : 'raw counts data of D99 atlas, tha counts data with regions in axis 0, layers in axis 1, ctypes in axis 2'
+}
+# save the counts data
+np.save('/data100/home/dthbca/project/CellAlign/Layers/datasets/Spatial/raw_counts_d99.npy', counts, allow_pickle=True)
+
+##### CELL 5 [code] #####
+def load_layer_data(atlas='BN', level='subclass', return_ratio=True):
+    """Load per-layer cell-type counts and return a canonical stack.
+
+    Returns
+    -------
+    arr : np.ndarray, shape (n_region, n_layer, n_ctype)
+    ctype_names : list[str]
+    region_names : list[str]
+    layers : list[str]
+    """
+    path = ('/data100/home/dthbca/project/CellAlign/CellAlign/datasets/'
+            'features/SpatialTranscriptomics/layer_data')
+    data_list, region_names, ctype_names = [], None, None
+
+    for layer in LAYER_KEYS:
+        fname = f'ctype_region_counts_D99_M1_{layer}.csv'
+        data = pd.read_csv(os.path.join(path, fname), index_col=0)
+        if atlas != 'D99':
+            data = vol_relabel('D99', atlas, data, method='sum',
+                               cross_species=True).round()
+        data = ctype_ratio_agg(data, map_df=ctype_map, key=level)
+        if return_ratio:
+            data = data.div(data.sum(axis=1), axis=0)
+        data = data.sort_index().fillna(0)
+        region_names = set(data.index) if region_names is None \
+            else region_names.union(set(data.index))
+        if ctype_names is None:
+            ctype_names = data.columns.tolist()
+        elif not all(data.columns == ctype_names):
+            data = data[ctype_names]
+        data_list.append(data)
+
+    region_names = sorted(region_names)
+    arr = np.stack([d.reindex(index=region_names, fill_value=0).values
+                    for d in data_list], axis=0)      # (layer, region, ctype)
+    arr = np.transpose(arr, (1, 0, 2))                # (region, layer, ctype)  <- canonical
+    return arr, ctype_names, region_names, LAYER_KEYS
+
+##### CELL 6 [code] #####
+# --- proportions tensor + raw-count list, both in canonical order -----------
+prop_mat, ctypes, regions, _ = load_layer_data('BN', 'subclass', return_ratio=True)
+count_arr, _, _, _           = load_layer_data('BN', 'subclass', return_ratio=False)
+
+# list[6] of (region x ctype) count DataFrames  (used by CoDA / permutation code)
+layer_counts_list = [pd.DataFrame(count_arr[:, l, :], index=regions, columns=ctypes)
+                     for l in range(len(LAYER_KEYS))]
+
+n_region, n_layer, n_ctype = prop_mat.shape
+print(f'prop_mat {prop_mat.shape}  (region, layer, ctype)  |  {n_ctype} cell types')
+
+##### CELL 7 [code] #####
+# --- BigBrain layer thickness, mapped FGC -> BN -----------------------------
+layer_CT = pd.read_csv('/data100/home/dthbca/project/CellAlign/CellAlign/datasets/'
+                       'features/layer_thickness_parced.csv', index_col=0)
+layer_CT = vol_relabel('FGC', 'BN', layer_CT, method='mean')
+layer_CT = layer_CT.reindex(index=regions)            # align to composition regions
+rel_CT   = layer_CT.div(layer_CT.sum(axis=1), axis=0)  # relative (rows sum to 1)
+
+##### CELL 8 [code] #####
+# --- valid layer x cell-type combinations (structural-zero handling) ---------
+# True  -> cell type is PRESENT in that layer  (analyse)
+# False -> biologically ABSENT (structural zero): dropped BEFORE CLR (so it never
+#          enters the geometric mean), not tested, excluded from FDR, hidden in plots.
+
+# (1) EXTERNAL reference mask  [PRIMARY] -- independent laminar assignment (nc2025)
+ext_mask = pd.read_csv('/data100/home/dthbca/project/CellAlign/CellAlign/datasets/'
+                       'features/SpatialTranscriptomics/mask_by_nc2025.csv', index_col=0)
+ext_mask = ext_mask.iloc[:,:6]
+ext_mask.columns = layer_names_roman
+ext_mask = ext_mask.T.loc[:, ctypes].astype(bool)          # (layer x ctype) bool
+
+# (2) ENRICHMENT mask  [ROBUSTNESS] -- data-driven laminar distribution of each
+#     cell type: fraction of a cell type residing in each layer (columns sum to 1).
+def enrichment_mask(counts_list, layers, ctypes, thr=0.05):
+    """Return (bool mask, enrichment df). present if >thr of the cell type sits in the layer."""
+    lam = np.stack([counts_list[l].values for l in range(len(layers))], axis=0).sum(1)  # (layer,ctype)
+    enrich = pd.DataFrame(lam / lam.sum(0, keepdims=True), index=layers, columns=ctypes)
+    return (enrich > thr), enrich
+
+enrich_mask, enrich = enrichment_mask(layer_counts_list, layer_names_roman, ctypes, thr=0.05)
+
+# PRIMARY analysis mask (use `ext_mask & enrich_mask` for a conservative intersection)
+mask = ext_mask
+print('valid cells  external:', int(ext_mask.values.sum()),
+      '| enrichment>0.05:', int(enrich_mask.values.sum()),
+      '| PRIMARY:', int(mask.values.sum()))
+mask.head()
+
+##### CELL 9 [markdown] #####
+# Analyis
+
+##### CELL 10 [code] #####
+from scipy.stats import gmean
+
+def coda_transform(df, mode='ALR', ref=None, pseudocount=1e-8, basis=None):
+    """ALR / CLR / ILR transform for compositional data (rows = samples).
+
+    CLR is used for the primary analysis. ILR uses the default SBP (Helmert-type)
+    orthonormal basis. Returns (transformed_df, reference_or_basis).
+    """
+    cols = df.columns.tolist()
+    if len(cols) < 2:
+        raise ValueError('Need at least two components.')
+    data = df[cols] + pseudocount
+    D = len(cols)
+
+    if mode.upper() == 'ALR':
+        ref_col = (data.median(axis=0).idxmax() if ref is None
+                   else cols[ref] if isinstance(ref, int) else ref)
+        if ref_col not in cols:
+            raise ValueError(f"Reference column '{ref_col}' does not exist.")
+        out = pd.DataFrame({c: np.log(data[c] / data[ref_col])
+                            for c in cols if c != ref_col}, index=df.index)
+        return out, ref_col
+
+    if mode.upper() == 'CLR':
+        g = gmean(data, axis=1)
+        out = pd.DataFrame({c: np.log(data[c] / g) for c in cols}, index=df.index)
+        return out, 'Geometric mean'
+
+    if mode.upper() == 'ILR':
+        if basis is not None:
+            B = np.asarray(basis)
+            if B.shape != (D, D - 1):
+                raise ValueError(f'Basis must be ({D}, {D-1}), got {B.shape}')
+        else:
+            B = np.zeros((D, D - 1))
+            for i in range(1, D):
+                coef = np.sqrt(i / (i + 1))
+                B[:i, i - 1] = coef / i
+                B[i,  i - 1] = -coef
+        g = gmean(data, axis=1)
+        clr = np.log(data / g.reshape(-1, 1))
+        out = pd.DataFrame(clr.values @ B, index=df.index,
+                           columns=[f'ILR_{i+1}' for i in range(D - 1)])
+        return out, B
+
+    raise ValueError("mode must be 'ALR', 'CLR', or 'ILR'")
+
+
+def clr_features(prop_mat, layers, ctypes, mask=None, use_clr=True, pseudocount=1e-8):
+    """Per-layer feature DataFrames used by the coupling tests.
+
+    If mask (layers x ctypes bool, True=present) is given AND use_clr, each layer's
+    CLR is computed over ONLY its present cell types (structural zeros excluded so
+    they do not pollute the geometric mean). Returns list[n_layer] of (region x k_valid).
+    """
+    X = []
+    for l, layer in enumerate(layers):
+        df = pd.DataFrame(prop_mat[:, l, :], columns=ctypes)
+        if mask is not None:
+            keep = mask.loc[layer]
+            df = df.loc[:, keep[keep].index]          # subcomposition: drop absent cols
+        X.append(coda_transform(df, mode='CLR', pseudocount=pseudocount)[0]
+                 if use_clr else df)
+    return X
+
+##### CELL 11 [code] #####
+def plot_layer_heatmap(data, data_p=None, annot=False,
+                       annot_thresholds=(0.05, 0.01, 0.001),
+                       annot_symbols=('*', '**', '***'),
+                       figsize_scale=(0.31, 0.4), vmin=-2, vmax=2,
+                       cmap_name='RdYlBu_r', mask_color='#E8E8E8',
+                       cbar_label='Layer enrichment score',
+                       title='Cortical layer cell type distribution',
+                       add_grid=True, output_file=None, dpi=300, mask=None):
+    """Nature-style layer x cell-type heatmap.
+
+    data : DataFrame (rows = layers, cols = cell types). NaN cells shown as mask_color.
+    mask : optional bool DataFrame; True cells are hidden (set to NaN).
+    """
+    # 1. column ordering by class ------------------------------------------------
+    cls_map = {ct: cls for cls in cls_order for ct in cls_def[cls]}
+    base_to_cols = {}
+    for col in data.columns:
+        base = col if col in cls_map else (col.rsplit('_', 1)[0] if '_' in col else col)
+        base_to_cols.setdefault(base, []).append(col)
+    final_cols = []
+    for cls in cls_order:
+        for ct in cls_def[cls]:
+            if ct in base_to_cols:
+                final_cols.extend(base_to_cols.pop(ct))
+    other = [c for cols in base_to_cols.values() for c in cols]
+    if other:
+        print(f'Warning: unclassified columns placed in Other: {other}')
+        final_cols.extend(other)
+    final_cols = [c for c in final_cols if c in data.columns]
+
+    data = data[final_cols].copy(); data.index = layer_names_roman
+    if data_p is not None:
+        data_p = data_p[final_cols].copy(); data_p.index = layer_names_roman
+
+    # 1b. apply mask -------------------------------------------------------------
+    if mask is not None:
+        if isinstance(mask, np.ndarray):
+            mask = pd.DataFrame(mask, columns=final_cols)
+        mask = mask[final_cols].copy(); mask.index = layer_names_roman
+        data = data.mask(mask.values)
+        if data_p is not None:
+            data_p = data_p.mask(mask.values)
+
+    n_rows, n_cols = data.shape
+
+    # 2. class -> column spans for top bar --------------------------------------
+    class_columns = OrderedDict()
+    for col in final_cols:
+        base = col if col in cls_map else (col.rsplit('_', 1)[0] if '_' in col else col)
+        class_columns.setdefault(cls_map.get(base, 'Other'), []).append(col)
+    cls_positions, start = {}, 0
+    for cls, cols in class_columns.items():
+        cls_positions[cls] = (start, start + len(cols)); start += len(cols)
+
+    # 3-4. norm / figure ---------------------------------------------------------
+    norm = TwoSlopeNorm(vmin=vmin, vcenter=(vmin + vmax) / 2, vmax=vmax)
+    cmap = plt.get_cmap(cmap_name).copy(); cmap.set_bad(color=mask_color)
+    fig, ax = plt.subplots(figsize=(n_cols * figsize_scale[0] + 1.2,
+                                    n_rows * figsize_scale[1] + 0.8))
+    im = ax.imshow(data.values, cmap=cmap, norm=norm, aspect='auto',
+                   interpolation='nearest')
+    if add_grid:
+        for i in range(1, n_rows): ax.axhline(i - 0.52, color='white', lw=0.6, zorder=10)
+        for j in range(1, n_cols): ax.axvline(j - 0.52, color='white', lw=0.6, zorder=10)
+
+    # 5b. significance stars -----------------------------------------------------
+    if annot and data_p is not None:
+        for i in range(n_rows):
+            for j in range(n_cols):
+                val, p = data.iloc[i, j], data_p.iloc[i, j]
+                if np.isnan(val) or np.isnan(p):
+                    continue
+                sym = next((s for t, s in zip(annot_thresholds, annot_symbols) if p < t), None)
+                if sym is None:
+                    continue
+                rgba = cmap(norm(val))
+                lum = 0.299 * rgba[0] + 0.587 * rgba[1] + 0.114 * rgba[2]
+                ax.text(j, i, sym, ha='center', va='center', zorder=20,
+                        color='white' if lum < 0.5 else 'black',
+                        fontsize=8, fontweight='bold')
+
+    # 6. axes --------------------------------------------------------------------
+    ax.set_xticks(np.arange(n_cols)); ax.set_xticklabels(final_cols, rotation=90, fontsize=8)
+    ax.yaxis.tick_right(); ax.yaxis.set_label_position('right')
+    ax.set_yticks(np.arange(n_rows)); ax.set_yticklabels(layer_names_roman, fontsize=8, va='center')
+    ax.tick_params(axis='y', length=0)
+    for sp in ax.spines.values(): sp.set_visible(False)
+
+    # 7. top class bar -----------------------------------------------------------
+    top = ax.inset_axes([0, 1.02, 1, 0.1], transform=ax.transAxes)
+    top.set_xlim(0, n_cols); top.set_ylim(0, 1); top.axis('off')
+    for cls, (s, e) in cls_positions.items():
+        top.add_patch(mpatches.Rectangle((s, 0), e - s, 1,
+                      facecolor=cls_colors.get(cls, '#888'), edgecolor='none'))
+        if e - s > 2:
+            top.text((s + e) / 2, 0.5, cls, ha='center', va='center',
+                     fontsize=9, color='white', fontweight='bold')
+
+    # 8-9. colorbar / title ------------------------------------------------------
+    cbar = fig.colorbar(im, ax=ax, orientation='vertical', fraction=0.1, pad=0.08,
+                        shrink=0.8, aspect=10)
+    cbar.set_label(cbar_label, fontsize=9, labelpad=8)
+    cbar.ax.tick_params(labelsize=7, length=3, width=0.6)
+    ticks = np.arange(vmin, vmax + 0.01, (vmax - vmin) / 4)
+    cbar.set_ticks(ticks); cbar.ax.set_yticklabels([f'{t:.2f}' for t in ticks])
+    ax.set_title(title, fontsize=11, pad=18, weight='normal')
+
+    plt.tight_layout()
+    if output_file:
+        plt.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    plt.show()
+    return fig, ax
+
+##### CELL 12 [code] #####
+# mean within-layer proportion of each cell type, averaged over regions
+mean_layer = pd.DataFrame(np.nanmean(prop_mat, axis=0),      # (layer, ctype)
+                          index=layer_names_roman, columns=ctypes)
+mean_layer = mean_layer.div(mean_layer.sum(axis=0), axis=1)
+fig, ax = plot_layer_heatmap(mean_layer, figsize_scale=(0.26, 0.4),
+                             vmin=0, vmax=0.3, cmap_name='RdYlBu_r',
+                             title='Cell type layer-specific distribution',
+                             cbar_label='layer enrichment score')
+
+##### CELL 13 [code] #####
+from neuromaps import stats
+from statsmodels.stats.multitest import fdrcorrection
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+def _spin_single(args):
+    i, k, layer, ctype, x, y, spins = args
+    r, p = stats.compare_images(x, y, nulls=x[spins],
+                                nan_policy='omit', metric='pearsonr')
+    return {'layer': layer, 'ctype': ctype, 'correlation': r, 'p_value': p}
+
+def parallel_cross_layer_correlation(prop_mat, layer_CT, layers, ctypes, spins,
+                                     use_clr=True, relative=True, mask=None,
+                                     pseudocount=1e-8, fdr_alpha=0.05,
+                                     max_workers=None, show_progress=True):
+    """Spin-test correlation of layer composition vs. layer thickness.
+
+    prop_mat : (n_region, n_layer, n_ctype)  within-layer proportions.
+    layer_CT : (n_region, n_layer) DataFrame  absolute thickness.
+    spins    : (n_spins, n_region) index array from spin_data(..., return_ind=True).
+    use_clr  : CLR-transform composition per layer (recommended True).
+    relative : row-normalise thickness across layers (recommended True).
+    mask     : optional (layer x ctype) bool DataFrame; True == analyse.
+    """
+    n_region, n_layer, _ = prop_mat.shape
+    assert layer_CT.shape == (n_region, n_layer), 'layer_CT shape mismatch'
+    if mask is None:
+        mask = pd.DataFrame(True, index=layers, columns=ctypes)
+    mask = mask.astype(bool)
+
+    # X: per-layer features. When use_clr, CLR is taken over the sub-composition of
+    # PRESENT cell types per layer (mask) so structural zeros never enter the geometric
+    # mean. Masked cells are also skipped in the task loop and dropped from the FDR family.
+    X_layers = clr_features(prop_mat, layers, ctypes,
+                            mask=mask if use_clr else None,
+                            use_clr=use_clr, pseudocount=pseudocount)
+    # Y: thickness (optionally relative)
+    Y = layer_CT.div(layer_CT.sum(axis=1), axis=0) if relative else layer_CT
+    Y = [Y.iloc[:, l].values for l in range(n_layer)]
+
+    tasks = [(i, k, layer, ct, X_layers[i][ct].values, Y[i], spins)
+             for i, layer in enumerate(layers)
+             for k, ct in enumerate(ctypes) if mask.loc[layer, ct]]
+
+    results = {}
+    with ProcessPoolExecutor(max_workers=max_workers) as ex:
+        fut = {ex.submit(_spin_single, t): n for n, t in enumerate(tasks)}
+        it = as_completed(fut)
+        if show_progress:
+            from tqdm import tqdm
+            it = tqdm(it, total=len(tasks), desc='spin')
+        for f in it:
+            results[fut[f]] = f.result()
+    res = pd.DataFrame([results[n] for n in sorted(results)])
+
+    ok = res['p_value'].notna()
+    res.loc[ok, 'reject_H0'], res.loc[ok, 'p_adjusted'] = fdrcorrection(
+        res.loc[ok, 'p_value'].values, alpha=fdr_alpha)
+    return res
+
+##### CELL 14 [code] #####
+np.random.seed(42)
+spins = spin_data(data=layer_CT, atlas='BN', n_spins=1000, return_ind=True)
+
+results = parallel_cross_layer_correlation(
+    prop_mat, layer_CT, layer_names_roman, ctypes, spins,
+    use_clr=True, relative=False, mask=mask,
+    fdr_alpha=0.05, max_workers=20, show_progress=True)
+
+r_mat = results.pivot(index='layer', columns='ctype', values='correlation').reindex(index=layer_names_roman, columns=ctypes)
+p_mat = results.pivot(index='layer', columns='ctype', values='p_adjusted').reindex(index=layer_names_roman, columns=ctypes)
+fig, ax = plot_layer_heatmap(
+    r_mat, data_p=p_mat, annot=True, mask=~mask,
+    vmin=-1, vmax=1, figsize_scale=(0.27, 0.4),
+    cbar_label='Pearson r (spin-test)',
+    title='layer composition (CLR) ~ relative layer thickness\n'
+          'spin null + FDR')
+
+##### CELL 15 [code] #####
+import math
+from itertools import permutations
+from scipy.stats import pearsonr
+
+def _exact_mismatch(args):
+    X_layers, Y_layers, i, k, ctype = args
+    x, L = X_layers[i][ctype].values, len(Y_layers)
+    r_obs, _ = pearsonr(x, Y_layers[i])
+    perm_r = [pearsonr(x, Y_layers[perm[i]])[0]
+              for perm in permutations(range(L)) if perm[i] != i]
+    return {'layer': i, 'ctype': ctype, 'r_obs': r_obs,
+            'p_value': np.mean(np.array(perm_r) >= r_obs),
+            'n_perm_used': len(perm_r)}
+
+def permutation_test_exact_mismatch(X_layers, Y_layers, ctypes, layers=None,
+                                    mask=None, n_jobs=None, show_progress=True):
+    """Exact enumeration mismatch permutation (fine for <= 8 layers).
+
+    If mask (layers x ctypes bool, True=present) and layers are supplied, absent
+    (structural-zero) cells are skipped and excluded from the FDR family.
+    """
+    L = len(X_layers)
+    assert L == len(Y_layers), 'X_layers / Y_layers length mismatch'
+    tasks = []
+    for i in range(L):
+        for k, ct in enumerate(ctypes):
+            if ct not in X_layers[i].columns:                 # dropped by subcomposition CLR
+                continue
+            if mask is not None and layers is not None and not mask.loc[layers[i], ct]:
+                continue
+            tasks.append((X_layers, Y_layers, i, k, ct))
+    n_draws = math.factorial(L) - math.factorial(L - 1)   # exclude perm[i]==i
+    print(f'{len(tasks)} combinations x {n_draws} null draws each '
+          f'({L-1} distinct mismatched layers)')
+    with ProcessPoolExecutor(max_workers=n_jobs) as ex:
+        futs = [ex.submit(_exact_mismatch, t) for t in tasks]
+        it = as_completed(futs)
+        if show_progress:
+            from tqdm import tqdm
+            it = tqdm(it, total=len(tasks), desc='exact-mismatch')
+        res = [f.result() for f in it]
+    df = pd.DataFrame(res)
+    ok = df['p_value'].notna()
+    df.loc[ok, 'reject_H0'], df.loc[ok, 'p_adjusted'] = fdrcorrection(
+        df.loc[ok, 'p_value'].values, alpha=0.05)
+    return df
+
+##### CELL 16 [code] #####
+# CLR features over PRESENT cell types per layer (structural zeros excluded via mask)
+X_layers = clr_features(prop_mat, layer_names_roman, ctypes, mask=mask, use_clr=True)
+Y_layers = [layer_CT.iloc[:, l].values for l in range(n_layer)]
+
+df_mismatch = permutation_test_exact_mismatch(
+    X_layers, Y_layers, ctypes, layers=layer_names_roman, mask=mask)
+df_mismatch['layer'] = df_mismatch['layer'].map(dict(enumerate(layer_names_roman)))
+
+r_mm = df_mismatch.pivot(index='layer', columns='ctype', values='r_obs'
+                         ).reindex(index=layer_names_roman, columns=ctypes)
+p_mm = df_mismatch.pivot(index='layer', columns='ctype', values='p_adjusted'
+                         ).reindex(index=layer_names_roman, columns=ctypes)
+fig, ax = plot_layer_heatmap(
+    r_mm, data_p=p_mm, annot=True, mask=~mask,
+    vmin=-1, vmax=1, figsize_scale=(0.27, 0.4),
+    cbar_label='Pearson r', cmap_name='RdBu_r',
+    title='layer specificity (layer-mismatch permutation)')
+
+##### CELL 17 [code] #####
+for use_clr in (True, False):
+    for relative in (True, False):
+        res = parallel_cross_layer_correlation(
+            prop_mat, layer_CT, layer_names_roman, ctypes, spins,
+            use_clr=use_clr, relative=relative, mask=mask,
+            show_progress=False, max_workers=20)
+        n_sig = int(res['reject_H0'].sum())
+        print(f'CLR={use_clr!s:5}  relative={relative!s:5}  -> {n_sig} FDR-sig cells')
+
+##### CELL 18 [code] #####
+# --- mask robustness: does the PRIMARY result depend on the mask choice? -----
+mask_variants = {'external (nc2025)': ext_mask}
+for thr in (.05,.06, .07,.08, .09, .1, .11, .12,.13,.14):
+    #mv, _ = enrichment_mask(layer_counts_list, layer_names_roman, ctypes, thr=thr)
+    mv = mean_layer > thr
+    mask_variants[f'enrichment>{thr}'] = mv
+mask_variants['external & enrich>0.05'] = ext_mask & enrich_mask
+
+for name, mv in mask_variants.items():
+    res = parallel_cross_layer_correlation(
+        prop_mat, layer_CT, layer_names_roman, ctypes, spins,
+        use_clr=True, relative=False, mask=mv,
+        show_progress=False, max_workers=20)
+    print(f'{name:24} valid={int(mv.values.sum()):3}  FDR-sig={int(res.reject_H0.sum()):3}')
+
+##### CELL 19 [code] #####
+fig = plot_layer_heatmap(zscore(mean_layer, axis=0)>0, vmin=-1, vmax=1, annot=True)
+
+##### CELL 20 [code] #####
+data = zscore(prop_mat, axis=1)
+data = pd.DataFrame(data.mean(axis=0), index = layer_names_roman, columns = ctypes)
+fig = plot_layer_heatmap(data, vmin=-1.5, vmax=1, annot=True, cbar_label = 'layer ratio mean')
+
+##### CELL 21 [code] #####
+def structural_zero_mask(counts, tau_lo=0.5, k=None, cap_by_breadth=False):
+    p = counts.sum(0); p = p/p.sum(0,keepdims=True)      # ctype laminar fraction
+    q = counts.sum((0,2))/counts.sum()                   # baseline layer occupancy
+    ER = p/q[:,None]
+    m = ER >= tau_lo
+    if cap_by_breadth or k is not None:
+        for j in range(ER.shape[1]):
+            kc = round(effN(p[:,j])) if cap_by_breadth else k.get(ctypes[j], ER.shape[0])
+            keep = np.argsort(-ER[:,j])[:kc]
+            cap = np.zeros(ER.shape[0], bool); cap[keep] = True
+            m[:,j] &= cap
+            if not m[:,j].any(): m[np.argmax(ER[:,j]), j] = True
+    return m, ER
+m, ER = structural_zero_mask(count_arr)
+
+##### CELL 22 [code] #####
+pd.DataFrame(prop_mat.mean(0),index = layer_names_roman, columns = ctypes).to_csv
+
+##### CELL 23 [code] #####
+corr_unlayer = layer_spin_test(data=layer_CT,ctype_ratio = fetch_ctype_ratio(level='subclass'),plot=False)
+
+##### CELL 24 [code] #####
+import numpy as np
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from matplotlib.colors import Normalize
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from scipy.stats import spearmanr, linregress, t as t_dist, rankdata
+from scipy.cluster.hierarchy import linkage, leaves_list, optimal_leaf_ordering
+from scipy.spatial.distance import squareform
+def draw_scatter(ax, x, y, c, xlim=None, ylim=None, xlabel='', ylabel=''):
+    ax.scatter(x, y, s=22, color=c, alpha=0.52, lw=0, zorder=3)
+    xl, yl, lo, hi = _ols_ci(x, y)
+    ax.plot(xl, yl, color=c, lw=1.6, zorder=4)
+    ax.fill_between(xl, lo, hi, color=c, alpha=0.13, lw=0, zorder=2)
+    av  = np.concatenate([x, y])
+    ref = [av.min() - 0.15, av.max() + 0.15]
+    #ax.plot(ref, ref, color='#C0C0C0', lw=0.65, ls='--', zorder=1)
+    rho, p = pearsonr(x, y)
+    pstr = ('< 0.001' if p < 0.001
+            else f'= {p:.3f}' if p < 0.01
+            else f'= {p:.2f}')
+    #ax.text(0.1, 1.12,
+    #        f'$\\rho$ = {rho:.3f}, $p$ {pstr}',
+    #        transform=ax.transAxes, va='top', ha='left',
+    #        fontsize=6.0, linespacing=1.5,
+    #        bbox=dict(boxstyle='round,pad=0.27', fc='white',
+    #                  ec='#BBBBBB', lw=0.35, alpha=0.95),fontweight='medium')
+    ax.set_xlabel(xlabel, fontsize=6.5, labelpad=.8,fontweight='medium')
+    ax.set_ylabel(ylabel, fontsize=6.5, labelpad=.8,fontweight='medium')
+    ax.tick_params(labelsize=8, length=2.5, width=0.7)
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set_fontweight('medium')
+    for sp in ['left', 'bottom']: ax.spines[sp].set_linewidth(0.8)
+    if xlim: ax.set_xlim(*xlim)
+    if ylim: ax.set_ylim(*ylim)
+    ax.set_box_aspect(1)
+def _ols_ci(x, y, n_pts=200, ci=0.95):
+    n  = len(x);  xl = np.linspace(x.min(), x.max(), n_pts)
+    sl, ic, *_ = linregress(x, y)
+    yh = sl * x + ic;  s = np.sqrt(np.sum((y - yh) ** 2) / (n - 2))
+    xm = x.mean();  sx = np.sum((x - xm) ** 2)
+    se = s * np.sqrt(1 / n + (xl - xm) ** 2 / sx)
+    tc = t_dist.ppf((1 + ci) / 2, df=n - 2)
+    yl = sl * xl + ic
+    return xl, yl, yl - tc * se, yl + tc * se
+fig,ax = plt.subplots(1,1)
+draw_scatter(ax,x = layer_CT['l4'], y = within_counts_prop(layer_counts_list)[3]['OPC'], c = 'skyblue',
+            )
+draw_scatter(ax,x = layer_CT['l4'], y = data_0['OPC'], c = 'grey',
+            )
+
+##### CELL 25 [code] #####
+x = layer_CT['l2']; y = within_counts_prop(layer_counts_list)[1]['Sncg']
+#x = layer_CT['l2']; y = data_0['Sncg']
+pearsonr(x,y)
+
+##### CELL 26 [code] #####
+data_0 = sum(df for df in layer_counts_list)
+data_0 = data_0.div(data_0.sum(axis=1), axis=0)
+
+##### CELL 27 [code] #####
+fig.savefig('example.pdf')
+
+##### CELL 28 [code] #####
+data = layer_CT
+ctype_ratio = within_layer_prop(layer_counts_list)
+res = pd.DataFrame(index = ctype_ratio[0].columns)
+pvalue = pd.DataFrame(index = ctype_ratio[0].columns)
+atlas = 'BN'
+spins = spin_data(data = ctype_ratio[0], atlas=atlas, n_spins=1000, return_ind=True)
+for ctype in ctype_ratio[0].columns:
+    for i,layer in enumerate(data.columns):
+        rotated = ctype_ratio[i][ctype].values[spins]
+        r,p = stats.compare_images(ctype_ratio[i][ctype].values, data[layer].values, nulls=rotated)
+        res.loc[ctype,layer] = r
+        pvalue.loc[ctype,layer] = p
+    
+
+##### CELL 29 [code] #####
+data = nib.load('/data100/home/dthbca/project/CellAlign/tmp/economo_conte69_lh.label.gii').agg_data()
+np.unique(data)
+prop_mat = prop_mat = prop_mat[:43,:,:]
+#counts = counts#.div(counts.sum(axis=1), axis=0)
+#counts = counts['Micro-PVM']
+#counts.index = np.unique(data)[1:]
+ctb_colors = ['#77829C','#9EBBC4','#C4D3BA','#EEDAAD','#FDDED4','#E3D0E3']
+cmap = ListedColormap(ctb_colors)
+
+##### CELL 30 [code] #####
+ctb = pd.Series(econ_ctb)
+ctb.index =np.unique(data)[1:]
+fig = plot_left(ctb,atlas='/data100/home/dthbca/project/CellAlign/tmp/economo_conte69_lh.label.gii',
+          surf='pial',cmap=cmap, view='row',size=None,zoom=1.2, outline=False, dpi=300)
+
+##### CELL 31 [code] #####
+fig,ax = plt.subplots(1,1)
+draw_scatter(ax,x=ctb, y = layer_CT['l4'].values, c = 'skyblue')
+
+##### CELL 32 [code] #####
+ct = rel_CT['l4']
+ct.index =np.unique(data)[1:]
+fig = plot_left(-ct,atlas='/data100/home/dthbca/project/CellAlign/tmp/economo_conte69_lh.label.gii',
+          surf='pial',cmap=cmap, view='row',size=None,zoom=1.2, outline=False, dpi=300)
+
+##### CELL 33 [code] #####
+
+
+##### CELL 34 [code] #####
+import numpy as np
+import pandas as pd
+from scipy.stats import gmean
+import numpy as np
+import pandas as pd
+from scipy.stats import gmean
+from scipy.linalg import null_space  # 可选，如需自定义基可导入
+
+def helmert_basis(D):
+    """
+    Generate a Helmert contrast matrix (D x (D-1)) with orthonormal columns,
+    each column sums to zero. This is a standard basis for ILR.
+    
+    Parameters:
+        D (int): Number of components.
+    
+    Returns:
+        np.ndarray: Shape (D, D-1), columns are orthonormal and sum to zero.
+    """
+    H = np.zeros((D, D-1))
+    for k in range(D-1):
+        # For column k, first k+1 entries are 1/sqrt((k+1)(k+2)), 
+        # entry k+1 is -sqrt((k+1)/(k+2)), rest 0.
+        # This is the standard Helmert matrix (column-wise).
+        # We'll build row-wise for clarity.
+        pass
+    # Simpler: use the standard Helmert matrix from R or stats.
+    # We'll construct using the recursive definition.
+    # For D, we create a (D-1) x D matrix, then transpose.
+    # Formula: for i=1..D-1, for j=1..i: value = 1/sqrt(i*(i+1)), 
+    # for j=i+1: value = -i/sqrt(i*(i+1)), else 0.
+    H = np.zeros((D-1, D))
+    for i in range(1, D):
+        H[i-1, :i] = 1 / np.sqrt(i * (i+1))
+        H[i-1, i] = -i / np.sqrt(i * (i+1))
+    return H.T  # shape (D, D-1)
+
+def coda_transform(df, mode='ALR', ref=None, pseudocount=1e-8, basis=None):
+    """
+    ALR, CLR, or ILR transformation for compositional data.
+
+    Parameters:
+        df (pd.DataFrame): Original data, rows = samples, columns = features.
+        mode (str): Transformation mode: 'ALR', 'CLR', or 'ILR'.
+        ref (int or str, optional): Reference column for ALR only.
+            - If None, select the column with the maximum median as reference.
+            - If int or str, specify the column index or name.
+        pseudocount (float): Small constant added to avoid log(0).
+        basis (np.ndarray, optional): Custom basis matrix for ILR only.
+            - Shape must be (D, D-1) with orthonormal columns, each summing to zero.
+            - If None, the default Helmert basis is used.
+
+    Returns:
+        tuple: (df_transformed, ref_or_basis)
+            - df_transformed: Transformed DataFrame.
+            - ref_or_basis: Reference column name (for ALR), 'Geometric mean' (for CLR),
+                            or the basis matrix used (for ILR).
+    """
+
+    cols = df.columns.tolist()
+    if len(cols) < 2:
+        raise ValueError("Need at least two features.")
+
+    data = df[cols] + pseudocount
+    D = len(cols)
+
+    if mode.upper() == 'ALR':
+        if ref is None:
+            ref_col_name = data.median(axis=0).idxmax()
+        elif isinstance(ref, int):
+            ref_col_name = cols[ref]
+        else:
+            ref_col_name = ref
+        if ref_col_name not in cols:
+            raise ValueError(f"Reference column '{ref_col_name}' does not exist.")
+
+        ref_vals = data[ref_col_name]
+        transformed = pd.DataFrame(index=df.index)
+        for col in cols:
+            if col != ref_col_name:
+                transformed[f'{col}'] = np.log(data[col] / ref_vals)
+        return transformed, ref_col_name
+
+    elif mode.upper() == 'CLR':
+        geom_mean = gmean(data, axis=1)
+        transformed = pd.DataFrame(index=df.index)
+        for col in cols:
+            transformed[f'{col}'] = np.log(data[col] / geom_mean)
+        return transformed, 'Geometric mean'
+
+    elif mode.upper() == 'ILR':
+        # First compute CLR (centered log-ratio)
+        geom_mean = gmean(data, axis=1)
+        clr = np.log(data / geom_mean.values.reshape(-1, 1))  # shape (n, D)
+
+        # Get basis matrix
+        if basis is None:
+            basis_matrix = helmert_basis(D)  # shape (D, D-1)
+        else:
+            basis_matrix = np.asarray(basis)
+            if basis_matrix.shape != (D, D-1):
+                raise ValueError(f"Basis matrix must be shape ({D}, {D-1}), got {basis_matrix.shape}")
+            # Check orthonormality and column sums (optional, but we skip for speed)
+
+        # ILR = CLR %*% basis_matrix  (n x (D-1))
+        ilr_values = clr @ basis_matrix  # matrix multiplication
+
+        # Create DataFrame with column names
+        transformed = pd.DataFrame(ilr_values, index=df.index,
+                                   columns=[f'ILR_{i+1}' for i in range(D-1)])
+        return transformed, basis_matrix
+
+    else:
+        raise ValueError("mode must be 'ALR', 'CLR', or 'ILR'")
+
+
+##### CELL 35 [code] #####
+data = nib.load('/data100/home/dthbca/project/CellAlign/tmp/economo_conte69_lh.label.gii').agg_data()
+coda_data,_ = coda_transform(layer_counts_list[3].iloc[:43,:], mode='CLR')
+ct = coda_data['L4 IT']
+ct.index =np.unique(data)[1:]
+fig = plot_left(-ct,atlas='/data100/home/dthbca/project/CellAlign/tmp/economo_conte69_lh.label.gii',
+          surf='inflated',cmap='RdYlBu_r', view='row',size=None,zoom=1.2, outline=True, dpi=300)
+
+##### CELL 36 [code] #####
+subclass_ratio
+
+##### CELL 37 [code] #####
+import scipy.stats
+scipy.stats.median_absolute_deviation = scipy.stats.median_abs_deviation
+import enigmatoolbox
+#economo_koskinas_spider, bb_moments_raincloud, bb_gradient_plot
+
+##### CELL 38 [code] #####
+data = fetch_parc(key='BN').agg_data()
+data = np.where(data>0,data, 0)
+
+##### CELL 39 [code] #####
+pkg_dir = os.path.dirname(enigmatoolbox.__file__)
+
+
+##### CELL 40 [code] #####
+pd.read_csv(os.path.join(pkg_dir,'histology/bb_gradient_schaefer_400.csv'), header=None)
+pd.read_csv(os.path.join(pkg_dir,'histology/bb_moments_schaefer_400.csv'), header=None)
+
+##### CELL 41 [code] #####
+ctb = pd.read_csv(os.path.join(pkg_dir,'datasets/parcellations/economo_koskinas_conte69.csv'), header=None)
+np.unique(ctb[0].values, return_counts=True)
+
+##### CELL 42 [code] #####
+fig = plot_left(fetch_parc(key='DK').agg_data(),surf='pial',cmap='tab20', outline=False)
+
+##### CELL 43 [code] #####
+colors = ['#882B82','#367AAE','#81AB6F','#DBAF15','#EFEA3A']
+cmap = ListedColormap(colors)
+fig = plot_left(data=ctb[0].values[:int(len(ctb)/2)],surf='pial', cmap=cmap)
+
+##### CELL 44 [code] #####
+ctypes
+
+##### CELL 45 [code] #####
+
+
+##### CELL 46 [code] #####
+import numpy as np
+import pandas as pd
+from scipy.stats import gmean
+
+def coda_transform(df, mode='ALR', ref=None, pseudocount=1e-8, basis=None):
+    """
+    ALR, CLR, or ILR transformation for compositional data.
+
+    Parameters:
+        df (pd.DataFrame): Original data, rows = samples, columns = features.
+        mode (str): Transformation mode: 'ALR', 'CLR', or 'ILR'.
+        ref (int or str, optional): Reference column for ALR only.
+            - If None, select the column with the maximum median as reference.
+            - If int or str, specify the column index or name.
+        pseudocount (float): Small constant added to avoid log(0).
+        basis (np.ndarray, optional): Custom basis matrix for ILR only.
+            - Shape must be (D, D-1) with orthonormal columns, each summing to zero.
+            - If None, the default sequential binary partition (SBP) basis is used,
+              corresponding to the formula:
+              ILR_i = sqrt(i/(i+1)) * ln( (prod_{j=1}^i x_j)^{1/i} / x_{i+1} ).
+
+    Returns:
+        tuple: (df_transformed, ref_or_basis)
+            - df_transformed: Transformed DataFrame.
+            - ref_or_basis: Reference column name (for ALR), 'Geometric mean' (for CLR),
+                            or the basis matrix used (for ILR).
+    """
+
+    cols = df.columns.tolist()
+    if len(cols) < 2:
+        raise ValueError("Need at least two features.")
+
+    data = df[cols] + pseudocount
+    D = len(cols)
+
+    if mode.upper() == 'ALR':
+        if ref is None:
+            ref_col_name = data.median(axis=0).idxmax()
+        elif isinstance(ref, int):
+            ref_col_name = cols[ref]
+        else:
+            ref_col_name = ref
+        if ref_col_name not in cols:
+            raise ValueError(f"Reference column '{ref_col_name}' does not exist.")
+
+        ref_vals = data[ref_col_name]
+        transformed = pd.DataFrame(index=df.index)
+        for col in cols:
+            if col != ref_col_name:
+                transformed[f'{col}'] = np.log(data[col] / ref_vals)
+        return transformed, ref_col_name
+
+    elif mode.upper() == 'CLR':
+        geom_mean = gmean(data, axis=1)
+        transformed = pd.DataFrame(index=df.index)
+        for col in cols:
+            transformed[f'{col}'] = np.log(data[col] / geom_mean)
+        return transformed, 'Geometric mean'
+
+    elif mode.upper() == 'ILR':
+        # If a custom basis is provided, use it; otherwise, use the default SBP basis.
+        if basis is not None:
+            basis_matrix = np.asarray(basis)
+            if basis_matrix.shape != (D, D-1):
+                raise ValueError(f"Basis matrix must be shape ({D}, {D-1}), got {basis_matrix.shape}")
+        else:
+            # Build the default basis matrix corresponding to the given formula.
+            # Each column k (0-indexed) corresponds to i = k+1.
+            basis_matrix = np.zeros((D, D-1))
+            for i in range(1, D):          # i = 1 .. D-1
+                k = i - 1                  # column index
+                coef = np.sqrt(i / (i + 1))
+                # For the first i components, weight = 1/i (geometric mean)
+                basis_matrix[:i, k] = coef / i
+                # For component i+1 (index i), weight = -coef
+                basis_matrix[i, k] = -coef
+                # The remaining components (i+2 .. D) get weight 0
+            # The basis matrix columns are orthonormal and sum to zero.
+
+        # Compute CLR (centered log-ratio)
+        geom_mean = gmean(data, axis=1)
+        clr = np.log(data / geom_mean.values.reshape(-1, 1))  # shape (n, D)
+
+        # ILR = CLR %*% basis_matrix
+        ilr_values = clr @ basis_matrix
+
+        # Create DataFrame with column names
+        transformed = pd.DataFrame(ilr_values, index=df.index,
+                                   columns=[f'ILR_{i+1}' for i in range(D-1)])
+        return transformed, basis_matrix
+
+    else:
+        raise ValueError("mode must be 'ALR', 'CLR', or 'ILR'")
+
+##### CELL 47 [code] #####
+layer_data = prop_mat[:,0,:]
+layer_data = pd.DataFrame(layer_data, columns=ctypes)
+coda_transform(layer_data, mode = 'CLR')[0]
+
+##### CELL 48 [code] #####
+spins = spin_data(data=layer_CT, atlas='BN', n_spins=10000, return_ind=True)
+
+##### CELL 49 [code] #####
+from neuromaps import stats
+spins = spin_data(data=layer_CT, atlas='BN', n_spins=1000, return_ind=True)
+transform = True; relative = True
+
+rval = pd.DataFrame(index = layer_names_roman, columns=ctypes)
+pval = pd.DataFrame(index = layer_names_roman, columns=ctypes)
+for i,layer in enumerate(layer_names_roman):
+    layer_data = prop_mat[:,i,:]
+    layer_data = pd.DataFrame(layer_data, columns=ctypes)
+    if transform:
+        layer_data = coda_transform(layer_data, mode = 'CLR')[0]
+    for k,ctype in enumerate(ctypes):
+        x = layer_data.iloc[:,k].values
+        rotated = x[spins]
+        y = layer_CT.iloc[:,i].values
+        if relative:
+            y = layer_CT.div(layer_CT.sum(axis=1), axis=0).iloc[:,i].values
+        r,p = stats.compare_images(x,y,nulls=rotated,nan_policy='omit',metric='pearsonr')
+        rval.loc[layer, ctype] = r
+        pval.loc[layer, ctype] = p
+
+##### CELL 50 [code] #####
+layer_names_roman
+
+##### CELL 51 [code] #####
+import numpy as np
+import pandas as pd
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from statsmodels.stats.multitest import fdrcorrection
+from tqdm import tqdm              # 可选，显示进度
+mask.columns = layer_names_roman
+mask = mask.T
+mask = mask.loc[:, ctypes]
+
+##### CELL 52 [code] #####
+def single_task(args):
+    """
+    计算单个 (layer_i, ctype_k) 的相关性和 p 值。
+    返回字典。
+    """
+    (i, k, layer_name, ctype, x, y, spins, nan_policy, relative) = args
+    rotated = x[spins]   # spins 为 (n_spins, n_samples)
+    r, p = stats.compare_images(x, y, nulls=rotated, nan_policy=nan_policy, metric='pearsonr')
+    return {
+        'layer': layer_name,
+        'ctype': ctype,
+        'correlation': r,
+        'p_value': p
+    }
+def parallel_cross_layer_correlation(prop_mat, layer_CT, layers, ctypes, 
+                                     spins, use_clr=True, pseudocount=1e-8,mask = None,
+                                     relative=False, fdr_alpha=0.05, 
+                                     max_workers=None, show_progress=True):
+    """
+    并行计算各层各特征的相关性。
+    
+    Parameters:
+        prop_mat: (n_regions, n_layers, n_features)
+        layer_CT: DataFrame (n_regions, n_layers) 或 2D array
+        layers, ctypes: 名称列表
+        spins: 置换索引矩阵 (n_spins, n_regions) —— 若 use_neuromaps=True，必须提供
+        use_clr: 是否 CLR 转换
+        relative: 是否对 layer_CT 进行行归一化
+        use_neuromaps: True 使用 neuromaps.compare_images，False 使用自定义 permutation_correlation
+        max_workers: 进程池最大工作数，默认 CPU 核数
+        show_progress: 是否显示进度条（需要 tqdm）
+    """
+    n_features, n_regions, n_layers = prop_mat.shape
+    if layer_CT.shape != (n_regions, n_layers):
+        raise ValueError("layer_CT shape mismatch")
+    if mask is not None:
+        if not isinstance(mask, pd.DataFrame):
+            raise TypeError("mask must be a pandas DataFrame")
+        if not (mask.index == layers).all() or not (mask.columns == ctypes).all():
+            raise ValueError("mask index/columns must match layers/ctypes")
+        # 确保 mask 为布尔类型
+        mask = mask.astype(bool)
+    else:
+        # 默认全为 True
+        mask = pd.DataFrame(True, index=layers, columns=ctypes)
+    # ---------- 预处理 ----------
+    # 1. CLR 转换 prop_mat（按层）
+    transformed_layers = []
+    for l in range(n_layers):
+        df_layer = pd.DataFrame(prop_mat[:, :, l]., columns=ctypes)
+        if use_clr:
+            df_trans, _ = coda_transform(df_layer, mode='CLR', pseudocount=pseudocount)
+        else:
+            df_trans = df_layer
+        transformed_layers.append(df_trans)
+    
+    # 2. 准备 y 数据（所有层）
+    if relative:
+        # 行归一化
+        y_df = layer_CT.div(layer_CT.sum(axis=1), axis=0) if isinstance(layer_CT, pd.DataFrame) else \
+               pd.DataFrame(layer_CT).div(pd.DataFrame(layer_CT).sum(axis=1), axis=0)
+    else:
+        y_df = layer_CT if isinstance(layer_CT, pd.DataFrame) else pd.DataFrame(layer_CT)
+    y_values = [y_df.iloc[:, j].values for j in range(n_layers)]
+    
+    # ---------- 构建任务列表 ----------
+    tasks = []
+    for i, layer in enumerate(layers):
+        df_i = transformed_layers[i]
+        y = y_values[i]
+        for k, ctype in enumerate(ctypes):
+            x = df_i.iloc[:, k].values
+            if not mask.loc[layer, ctype]:
+                continue   # 跳过该组合
+            # 若使用 neuromaps，需要传递 spins；否则也传递 spins（自定义函数会使用）
+            tasks.append((i, k, layer, ctype, x, y, spins,  'omit', relative))
+    
+    # ---------- 并行执行 ----------
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        # 提交所有任务
+        future_to_idx = {executor.submit(single_task, task): idx for idx, task in enumerate(tasks)}
+        
+        # 收集结果（按提交顺序或任意顺序，我们按索引排序）
+        if show_progress:
+            from tqdm import tqdm
+            iterator = tqdm(as_completed(future_to_idx), total=len(tasks), desc="Computing")
+        else:
+            iterator = as_completed(future_to_idx)
+        
+        # 使用字典暂存结果，保持原始顺序
+        result_dict = {}
+        for future in iterator:
+            idx = future_to_idx[future]
+            try:
+                res = future.result()
+                result_dict[idx] = res
+            except Exception as e:
+                print(f"Task {idx} failed: {e}")
+                # 可记录为 NaN
+                result_dict[idx] = None
+        
+        # 按原始顺序取出
+        for idx in sorted(result_dict.keys()):
+            res = result_dict[idx]
+            if res is not None:
+                results.append(res)
+            else:
+                # 若失败，填充占位
+                i, k, layer, ctype, _, _, _, _, _, _ = tasks[idx]
+                results.append({
+                    'layer': layer,
+                    'ctype': ctype,
+                    'correlation': np.nan,
+                    'p_value': np.nan
+                })
+    
+    # ---------- 汇总与 FDR 校正 ----------
+    results_df = pd.DataFrame(results)
+    valid = ~np.isnan(results_df['p_value'])
+    if valid.any():
+        reject, p_adj = fdrcorrection(results_df.loc[valid, 'p_value'].values, alpha=fdr_alpha)
+        results_df.loc[valid, 'p_adjusted'] = p_adj
+        results_df.loc[valid, 'reject_H0'] = reject
+    else:
+        results_df['p_adjusted'] = np.nan
+        results_df['reject_H0'] = False
+
+    return results_df
+
+##### CELL 53 [code] #####
+prop_mat = data
+
+##### CELL 54 [code] #####
+
+np.random.seed(42)
+
+# 并行运行（模式 A：neuromaps）
+results = parallel_cross_layer_correlation(
+    prop_mat, layer_CT, layer_names_roman, ctypes, spins,
+    use_clr=False, relative=False,mask = mask,
+    fdr_alpha=0.05, 
+    max_workers=20, show_progress=True
+)
+
+##### CELL 55 [code] #####
+data = results.pivot(index='layer', columns='ctype', values='correlation')
+fig, ax = plot_layer_heatmap(data = data,
+                   data_p = results.pivot(index='layer', columns='ctype', values='p_adjusted'), annot=True,
+                   vmin=-1, vmax=1, cbar_label = 'pearson correlation', figsize_scale = (0.27, 0.4),
+                   title = 'layer cell type ratio ~ layer cortical thickness \n no CLR and no relative'
+                  )
+
+##### CELL 56 [code] #####
+import numpy as np
+import pandas as pd
+from scipy.stats import pearsonr
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
+import warnings
+warnings.filterwarnings('ignore')
+
+def single_combination_permutation(args):
+    """
+    单个组合 (layer_idx, ctype_idx) 的置换检验。
+    返回该组合的结果字典。
+    """
+    X_layers, Y_layers, i, k, ctype, n_perm, seed = args
+    np.random.seed(seed)
+    
+    # 提取 X 和原始 Y
+    x = X_layers[i][ctype].values
+    y_orig = Y_layers[i]
+    # 剔除缺失值（同时移除 x 和 y_orig 的 NA）
+    mask = ~(np.isnan(x) | np.isnan(y_orig))
+    if np.sum(mask) < 3:
+        return {'layer': i, 'ctype': ctype, 'r_obs': np.nan, 'p_value': np.nan, 'n_used': np.sum(mask)}
+    x_clean = x[mask]
+    y_clean = y_orig[mask]
+    r_obs, _ = pearsonr(x_clean, y_clean)
+    
+    # 置换：打乱 Y 的层顺序，每次取第 i 层
+    L = len(Y_layers)
+    perm_r = np.zeros(n_perm)
+    for t in range(n_perm):
+        # 随机置换层索引
+        perm_idx = np.random.permutation(L)
+        # 取置换后的第 i 层
+        y_perm_full = Y_layers[perm_idx[i]]
+        # 对 x 和 y_perm 应用相同的 mask（剔除缺失值）
+        # 但注意 mask 是基于原始 y_orig 的，置换后 y 可能不同，我们需要重新 mask
+        # 更稳健：对每个置换单独 mask
+        mask_perm = ~(np.isnan(x) | np.isnan(y_perm_full))
+        if np.sum(mask_perm) < 3:
+            perm_r[t] = np.nan
+            continue
+        x_perm = x[mask_perm]
+        y_perm_clean = y_perm_full[mask_perm]
+        r_perm, _ = pearsonr(x_perm, y_perm_clean)
+        perm_r[t] = r_perm
+    
+    # 去除 NaN 的置换值
+    perm_r = perm_r[~np.isnan(perm_r)]
+    if len(perm_r) == 0:
+        p_val = np.nan
+    else:
+        # 单侧：r_obs > r_perm 的比例
+        p_val = np.mean(perm_r >= r_obs)
+    
+    return {
+        'layer': i,
+        'ctype': ctype,
+        'r_obs': r_obs,
+        'p_value': p_val,
+        'mean_perm_r': np.mean(perm_r) if len(perm_r) > 0 else np.nan,
+        'n_perm_used': len(perm_r)
+    }
+
+def permutation_test_each_pairwise(X_layers, Y_layers, ctypes, 
+                                   n_perm=1000, n_jobs=None, 
+                                   show_progress=True):
+    """
+    对每个 (layer, ctype) 组合分别进行匹配 vs 错配的置换检验。
+    
+    Parameters:
+        X_layers: list of DataFrames, 每个是某一层的 CLR 转换数据 (regions x ctypes)
+        Y_layers: list of 1D arrays, 每个是某一层的厚度/指标数据 (regions)
+        ctypes: list of str, 特征名称
+        n_perm: 每个组合的置换次数
+        n_jobs: 并行进程数
+        show_progress: 是否显示进度条
+    
+    Returns:
+        pd.DataFrame: 每个组合一行，包含 r_obs, p_value, mean_perm_r 等
+    """
+    L = len(X_layers)
+    if L != len(Y_layers):
+        raise ValueError("X_layers and Y_layers must have same length")
+    
+    # 生成所有任务参数
+    tasks = []
+    for i in range(L):
+        for k, ctype in enumerate(ctypes):
+            seed = np.random.randint(0, 2**31)
+            tasks.append((X_layers, Y_layers, i, k, ctype, n_perm, seed))
+    
+    print(f"Total combinations: {len(tasks)}")
+    print(f"Each with {n_perm} permutations, total {len(tasks)*n_perm} permutations.")
+    
+    results = []
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        if show_progress:
+            futures = [executor.submit(single_combination_permutation, task) for task in tasks]
+            for future in tqdm(as_completed(futures), total=len(tasks), desc="Processing combinations"):
+                try:
+                    results.append(future.result())
+                except Exception as e:
+                    print(f"Task failed: {e}")
+                    results.append(None)
+        else:
+            results = list(executor.map(single_combination_permutation, tasks))
+    
+    # 过滤失败的任务
+    results = [r for r in results if r is not None]
+    
+    # 转换为 DataFrame
+    df_results = pd.DataFrame(results)
+    # 添加层名称和细胞类型名称（如果原始 layers 和 ctypes 是字符串列表）
+    # 这里假设 layers 是全局变量，或者我们可以从 Y_layers 索引推断
+    # 我们可以传入 layers 名称列表，此处暂用索引，后续可映射
+    return df_results
+
+# 使用示例：
+# layers_names = ['L2/3', 'L4', 'L5', 'L6']  # 你的层名称
+# ctypes = ['PV', 'SST', 'VIP', 'PAX6', ...]
+# df_results = permutation_test_each_pairwise(transformed_layers, Y_layers, ctypes, n_perm=1000)
+# 
+# # 然后可以筛选出显著的结果
+# sig = df_results[df_results['p_value'] < 0.05]
+# print(sig)
+
+##### CELL 57 [code] #####
+transformed_layers = []
+for l in range(6):
+    df_layer = pd.DataFrame(prop_mat[:, :, l].T, columns=ctypes)
+    df_trans, _ = coda_transform(df_layer, mode='CLR', pseudocount=1e-8)
+    transformed_layers.append(df_trans)
+
+##### CELL 58 [code] #####
+# 假设您已经运行了之前的代码，得到了 transformed_layers
+# transformed_layers: list of DataFrames, 每个形状 (n_regions, n_ctypes)
+
+# 准备 Y_layers（厚度数据，每层一列）
+# 假设 layer_CT 是 DataFrame (n_regions, n_layers)
+#Y_layers = [layer_CT.div(layer_CT.sum(axis=1), axis=0).iloc[:, i].values for i in range(6)]
+Y_layers = [layer_CT.iloc[:, i].values for i in range(6)]
+
+df_results = permutation_test_exact_mismatch(transformed_layers, Y_layers, ctypes)
+# 
+# # 然后可以筛选出显著的结果
+sig = df_results[df_results['p_value'] < 0.05]
+print(sig)
+
+##### CELL 59 [code] #####
+import numpy as np
+import pandas as pd
+from scipy.stats import pearsonr
+from itertools import permutations
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
+import warnings
+warnings.filterwarnings('ignore')
+
+def single_exact_mismatch(args):
+    """
+    精确错配置换：枚举所有 L! 种层排列，取第 i 个位置作为错配层。
+    排除自身匹配 (perm[i] == i)。
+    """
+    X_layers, Y_layers, i, k, ctype = args
+    L = len(Y_layers)
+    
+    x = X_layers[i][ctype].values
+    y_obs = Y_layers[i]
+    
+    # 1. 计算观测相关
+    r_obs, _ = pearsonr(x, y_obs)
+    
+    # 2. 枚举所有层排列（L! 种）
+    perm_r = []
+    # 提前生成所有排列（若 L=6，仅720种，非常快）
+    for perm in permutations(range(L)):
+        j = perm[i]          # 打乱后第 i 个位置对应的是原始第几层
+        if j == i:
+            continue         # 剔除完全匹配（本层配本层），即 A^6_6 - 1
+        y_perm = Y_layers[j]
+        r_perm, _ = pearsonr(x, y_perm)
+        perm_r.append(r_perm)
+    
+    # 3. 计算精确 p 值（单侧：错配 >= 本层的比例）
+    # perm_r 的长度固定为 L! - 1
+    p_val = np.mean(np.array(perm_r) >= r_obs)
+    
+    return {
+        'layer': i,
+        'ctype': k,
+        'r_obs': r_obs,
+        'p_value': p_val,
+        'n_perm_used': len(perm_r)  # 固定为 719
+    }
+
+
+def permutation_test_exact_mismatch(X_layers, Y_layers, ctypes, 
+                                    n_jobs=None, show_progress=True):
+    """
+    精确枚举错配置换检验（适合层数 <= 8）。
+    """
+    L = len(X_layers)
+    if L != len(Y_layers):
+        raise ValueError("X_layers and Y_layers length mismatch")
+    if L > 8:
+        print(f"Warning: L={L}, total permutations {np.math.factorial(L)} might be large. Consider random sampling.")
+    
+    # 生成所有任务
+    tasks = []
+    for i in range(L):
+        for k, ctype in enumerate(ctypes):
+            tasks.append((X_layers, Y_layers, i, k, ctype))
+    
+    print(f"Total combinations: {len(tasks)}")
+    print(f"Each combination enumerates {np.math.factorial(L)} permutations, using {np.math.factorial(L)-1} mismatches.")
+    
+    results = []
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        if show_progress:
+            futures = [executor.submit(single_exact_mismatch, task) for task in tasks]
+            for future in tqdm(as_completed(futures), total=len(tasks), desc="Exact Permutations"):
+                try:
+                    results.append(future.result())
+                except Exception as e:
+                    print(f"Task failed: {e}")
+                    results.append(None)
+        else:
+            results = list(executor.map(single_exact_mismatch, tasks))
+    
+    results = [r for r in results if r is not None]
+    df_results = pd.DataFrame(results)
+    
+    # FDR 校正
+    from statsmodels.stats.multitest import fdrcorrection
+    valid = ~np.isnan(df_results['p_value'])
+    if valid.any():
+        reject, p_adj = fdrcorrection(df_results.loc[valid, 'p_value'].values, alpha=0.05)
+        df_results.loc[valid, 'p_adjusted'] = p_adj
+        df_results.loc[valid, 'reject_H0'] = reject
+    else:
+        df_results['p_adjusted'] = np.nan
+        df_results['reject_H0'] = False
+    
+    return df_results
+
+##### CELL 60 [code] #####
+df_results
+
+##### CELL 61 [code] #####
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def plot_correlation_heatmap(df_results, layers, ctypes, 
+                             value_col='r_obs', 
+                             p_col='p_adjusted', 
+                             sig_col='reject_H0',
+                             alpha=0.05,
+                             figsize=(12, 6),
+                             cmap='RdBu_r',
+                             annot=True):
+    """
+    绘制热图，显示每个 (layer, ctype) 的相关系数，并用星号标记显著性。
+    
+    Parameters:
+        df_results: 包含结果的 DataFrame
+        layers: 层名称列表（按顺序）
+        ctypes: 细胞类型名称列表（按顺序）
+        value_col: 用于填充颜色的列名（如 'r_obs'）
+        p_col: p 值列名（用于判断显著性）
+        sig_col: 布尔列名（是否显著）
+        alpha: 显著性阈值
+        figsize: 图形大小
+        cmap: 颜色映射
+        annot: 是否在热图上显示数字
+    """
+    # 构造矩阵 (layers x ctypes)
+    pivot = df_results.pivot(index='layer', columns='ctype', values=value_col)
+    # 确保顺序正确
+    pivot.index = layers; pivot.columns = ctypes 
+    
+    # 构造显著性标记矩阵（用于 annot 参数）
+    sig_matrix = df_results.pivot(index='layer', columns='ctype', values=p_col)
+    sig_matrix.index = layers; sig_matrix.columns = ctypes
+    
+    # 绘制热图
+    ax = plot_layer_heatmap(data = pivot,
+                       data_p = sig_matrix, annot=True,mask=~mask,
+                       vmin=-1, vmax=1, cbar_label = 'pearson correlation', figsize_scale = (0.27, 0.4),
+                       title = 'permutation test \n CLR and no relative'
+                      )
+    return ax
+ax = plot_correlation_heatmap(df_results, layer_names_roman, ctypes)
+
+
+##### CELL 62 [code] #####
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.colors import TwoSlopeNorm, ListedColormap
+import seaborn as sns
+
+# 假设 cls_def, cls_order, layer_names_roman, cls_colors 已在外部定义
+# 若需在函数内使用，请确保这些变量全局可用，或通过参数传入（建议）。
+
+def plot_layer_heatmap(
+    data,
+    data_p=None,
+    annot=False,
+    annot_thresholds=[0.05, 0.01, 0.001],
+    annot_symbols=['*', '**', '***'],
+    figsize_scale=(0.31, 0.4),
+    vmin=-2,
+    vmax=2,
+    cmap_name='RdYlBu_r',
+    mask_color='#E8E8E8',
+    cbar_label='Layer enrichment score',
+    title='Cortical layer cell type distribution',
+    add_grid=True,
+    output_file=None,
+    dpi=300,
+    mask=None  # <--- 新增参数
+):
+    """
+    Plot a Nature-style heatmap of cell type distribution across cortical layers.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Rows = layers, columns = cell types. Values are z-scores or correlations.
+        Missing (masked) cells should be set to NaN.
+    data_p : pd.DataFrame or None
+        Same shape as data containing p-values (used only if annot=True).
+    annot : bool
+        If True and data_p is provided, add significance markers (*, **, ***).
+    annot_thresholds : list of float
+        p-value thresholds for significance levels (default: [0.05, 0.01, 0.001]).
+    annot_symbols : list of str
+        Symbols corresponding to thresholds (default: ['*', '**', '***']).
+    figsize_scale : tuple (width_per_ct, height_per_layer)
+        Used to compute figure size: width = n_ct * width_per_ct + 1.2,
+        height = n_layer * height_per_layer + 0.8.
+    vmin, vmax : float
+        Symmetric colorbar limits.
+    cmap_name : str
+        Matplotlib colormap name (diverging recommended).
+    mask_color : str
+        Color for NaN cells.
+    cbar_label : str
+        Label for the colorbar.
+    title : str
+        Figure title.
+    add_grid : bool
+        If True, draw white lines separating cells.
+    output_file : str or None
+        File path to save figure (e.g., 'heatmap.pdf'). If None, only show.
+    dpi : int
+        Resolution for rasterized output.
+    mask : pd.DataFrame or np.ndarray, optional
+        Boolean mask with same shape as data (after ordering). True values indicate
+        cells to be masked (hidden) and will be set to NaN, displayed as mask_color.
+        Default: None (no additional masking).
+    Returns
+    -------
+    fig, ax : matplotlib figure and axes objects.
+    """
+    # ----- 1. Prepare data ordering (same as original) -----
+    cls_map = {}
+    for cls in cls_order:
+        for ct in cls_def[cls]:
+            cls_map[ct] = cls
+    all_cols = data.columns.tolist()
+    base_to_cols = {}
+    for col in all_cols:
+        if col in cls_map:
+            base = col
+        else:
+            if '_' in col:
+                base = col.rsplit('_', 1)[0]
+            else:
+                base = col
+        base_to_cols.setdefault(base, []).append(col)
+
+    final_cols = []
+    for cls in cls_order:
+        for ct in cls_def[cls]:
+            if ct in base_to_cols:
+                final_cols.extend(base_to_cols[ct])
+                del base_to_cols[ct]
+    other_cols = []
+    for base, cols in base_to_cols.items():
+        other_cols.extend(cols)
+    if other_cols:
+        print(f"Warning: Unclassified columns: {other_cols}. Placing in 'Other'.")
+        final_cols.extend(other_cols)
+
+    final_cols = [col for col in final_cols if col in data.columns]
+    data = data[final_cols]
+    data.index = layer_names_roman
+
+    if data_p is not None:
+        data_p = data_p[final_cols]
+        data_p.index = layer_names_roman
+        if data_p.shape != data.shape:
+            raise ValueError("data_p must have the same shape as data after ordering")
+
+    # ----- 1b. Apply mask (if provided) -----
+    if mask is not None:
+        # Ensure mask is a DataFrame aligned with final order
+        if isinstance(mask, pd.DataFrame):
+            mask = mask[final_cols]
+            mask.index = layer_names_roman
+        elif isinstance(mask, np.ndarray):
+            # Assume shape matches data (n_layers, n_cols) after ordering
+            mask = pd.DataFrame(mask, index=layer_names_roman, columns=final_cols)
+        else:
+            raise TypeError("mask must be a pandas DataFrame or numpy array")
+
+        if mask.shape != data.shape:
+            raise ValueError(f"mask shape {mask.shape} does not match data shape {data.shape}")
+
+        # Set masked positions to NaN (they will be shown as mask_color)
+        data[mask] = np.nan
+        if data_p is not None:
+            data_p[mask] = np.nan  # also hide significance markers
+
+    n_rows, n_cols = data.shape
+
+    # ----- 2. Compute class positions for top bar -----
+    col_class = []
+    for col in final_cols:
+        if col in cls_map:
+            cls = cls_map[col]
+        else:
+            base = col.rsplit('_', 1)[0] if '_' in col else col
+            cls = cls_map.get(base, 'Other')
+        col_class.append((col, cls))
+
+    from collections import OrderedDict
+    class_columns = OrderedDict()
+    for col, cls in col_class:
+        class_columns.setdefault(cls, []).append(col)
+
+    cls_positions = {}
+    start = 0
+    for cls, cols in class_columns.items():
+        end = start + len(cols)
+        cls_positions[cls] = (start, end)
+        start = end
+
+    if 'Other' not in cls_colors:
+        cls_colors['Other'] = '#B0B0B0'
+
+    # ----- 3. Colorbar limits -----
+    norm = TwoSlopeNorm(vmin=vmin, vcenter=(vmin+vmax)/2, vmax=vmax)
+    cmap = plt.get_cmap(cmap_name).copy()
+    cmap.set_bad(color=mask_color)
+
+    # ----- 4. Figure size -----
+    width = n_cols * figsize_scale[0] + 1.2
+    height = n_rows * figsize_scale[1] + 0.8
+    fig, ax = plt.subplots(figsize=(width, height))
+
+    # ----- 5. Heatmap -----
+    im = ax.imshow(data.values, cmap=cmap, norm=norm, aspect='auto', interpolation='nearest')
+
+    # White grid lines
+    if add_grid:
+        for i in range(1, n_rows):
+            ax.axhline(i - 0.52, color='white', linewidth=0.6, zorder=10)
+        for j in range(1, n_cols):
+            ax.axvline(j - 0.52, color='white', linewidth=0.6, zorder=10)
+
+    # ----- 5b. Significance annotations -----
+    if annot and data_p is not None:
+        def get_text_color(rgba):
+            lum = 0.299 * rgba[0] + 0.587 * rgba[1] + 0.114 * rgba[2]
+            return 'white' if lum < 0.5 else 'black'
+
+        for i in range(n_rows):
+            for j in range(n_cols):
+                val = data.iloc[i, j]
+                if np.isnan(val):
+                    continue
+                p_val = data_p.iloc[i, j]
+                if np.isnan(p_val):
+                    continue
+                symbol = None
+                for thresh, sym in zip(annot_thresholds, annot_symbols):
+                    if p_val < thresh:
+                        symbol = sym
+                        break
+                if symbol is None:
+                    continue
+                rgba = cmap(norm(val))
+                text_color = get_text_color(rgba)
+                ax.text(j, i, symbol, ha='center', va='center',
+                        color=text_color, fontsize=8, fontweight='bold', zorder=20)
+
+    # ----- 6. Axes styling -----
+    ax.set_xticks(np.arange(n_cols))
+    ax.set_xticklabels(final_cols, rotation=90, ha='center', va='top', fontsize=8)
+    ax.yaxis.tick_right()
+    ax.yaxis.set_label_position('right')
+    ax.set_yticks(np.arange(n_rows))
+    ax.set_yticklabels(layer_names_roman, fontsize=8, va='center')
+    ax.tick_params(axis='y', length=0)
+
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    # ----- 7. Top annotation bar -----
+    top_ax = ax.inset_axes([0, 1.02, 1, 0.1], transform=ax.transAxes)
+    top_ax.set_xlim(0, n_cols)
+    top_ax.set_ylim(0, 1)
+    top_ax.axis('off')
+    for cls, (start, end) in cls_positions.items():
+        color = cls_colors.get(cls, '#888888')
+        top_ax.add_patch(mpatches.Rectangle((start, 0), end-start, 1, facecolor=color, edgecolor='none'))
+        if end - start > 2:
+            top_ax.text((start+end)/2, 0.5, cls, ha='center', va='center',
+                        fontsize=9, color='white', fontweight='bold')
+
+    # ----- 8. Colorbar -----
+    cbar = fig.colorbar(im, ax=ax, orientation='vertical', fraction=0.1, pad=0.08,
+                        shrink=0.8, aspect=10)
+    cbar.set_label(cbar_label, fontsize=9, labelpad=8)
+    cbar.ax.tick_params(labelsize=7, length=3, width=0.6)
+    ticks = np.arange(vmin, vmax+0.01, (vmax-vmin)/4)
+    cbar.set_ticks(ticks)
+    cbar.ax.set_yticklabels([f'{t:.2f}' for t in ticks])
+
+    # ----- 9. Title -----
+    ax.set_title(title, fontsize=11, pad=18, weight='normal')
+
+    # ----- 10. Save or show -----
+    plt.tight_layout()
+    if output_file:
+        plt.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    plt.show()
+    return fig, ax
+

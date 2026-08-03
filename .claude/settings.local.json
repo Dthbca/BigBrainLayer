@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(ssh -o BatchMode=yes -o ConnectTimeout=10 dthbca@192.168.193.179 'echo io-ok && ssh -o BatchMode=yes -o ConnectTimeout=10 n03 \"echo n03-ok\"')",
+      "PowerShell(ssh -o BatchMode=yes -p 2023 dthbca@192.168.193.179 'echo io-ok && ssh -o BatchMode=yes n03 \"echo n03-ok\"')",
+      "PowerShell(ssh -p 2023 dthbca@192.168.193.179 'ssh-keyscan -H n03 >> ~/.ssh/known_hosts 2>/dev/null && echo keyscan-done')",
+      "PowerShell(ssh -p 2023 -o BatchMode=yes dthbca@192.168.193.179 'echo io-ok && ssh -o BatchMode=yes n03 \"echo n03-ok\"')",
+      "PowerShell(ssh n03 \"ls -la /data100/home/dthbca/project/CellAlign/ && echo '---SUBDIRS---' && find /data100/home/dthbca/project/CellAlign -maxdepth 2 -type d\")",
+      "PowerShell(ssh n03 \"cat /share/user_data/dthbca/public/experiment/BigBrainLayer/script/plotting.py\")",
+      "PowerShell(ssh n03 \"cat /share/user_data/dthbca/public/experiment/BigBrainLayer/script/dataset.py | wc -l; echo ---; cat /share/user_data/dthbca/public/experiment/BigBrainLayer/script/analysis.py | wc -l; echo ---; cat /share/user_data/dthbca/public/experiment/BigBrainLayer/script/prep.py | md5sum; echo ---; cat /share/user_data/dthbca/public/experiment/BigBrainLayer/script/plotting.py | md5sum; echo ---; ls -la /share/user_data/dthbca/public/experiment/BigBrainLayer/script/\")",
+      "PowerShell(ssh n03 \"find /share/user_data/dthbca/public/experiment/BigBrainLayer -maxdepth 3 | sort\")",
+      "PowerShell(ssh n03 \"cd /data100/home/dthbca/HomoloMap/experiments/layer_thichness/BigBrainLayer/script && conda activate CellAlign && python compare_features.py 2>&1\")",
+      "PowerShell(ssh n03 \"find /data100/home/dthbca/ -name 'BigBrainLayer' -type d 2>/dev/null | head -5\")",
+      "PowerShell(ssh -o StrictHostKeyChecking=no dthbca@n03 \"ls -la ~/script/ 2>/dev/null; ls -la ~/BigBrainLayer/ 2>/dev/null; ls -la /share/user_data/dthbca/public/experiment/BigBrainLayer/script/ 2>/dev/null; echo '---'; pwd; ls -la\")",
+      "PowerShell(ssh -o StrictHostKeyChecking=no dthbca@n03 \"head -50 /data100/home/dthbca/project/CellAlign/BigBrainLayer/script/dataset.py\")",
+      "PowerShell(scp *)",
+      "PowerShell(ssh dthbca@n03 \"cat /share/user_data/dthbca/public/experiment/BigBrainLayer/dataset/Spatial/mask_by_nc2025.csv\")",
+      "PowerShell(ssh dthbca@n03 \"ls -la /share/user_data/public/experiment/BigBrainLayer/dataset/Spatial/mask_by_nc2025.csv 2>/dev/null; echo '---'; head -2 /share/user_data/public/experiment/BigBrainLayer/dataset/Spatial/mask_by_nc2025.csv 2>/dev/null || echo 'NOT FOUND'\")",
+      "PowerShell(ssh dthbca@n03 \"diff /share/user_data/dthbca/public/experiment/BigBrainLayer/script/prep.py /share/user_data/public/experiment/BigBrainLayer/prep.py 2>/dev/null; echo '---'; diff /share/user_data/dthbca/public/experiment/BigBrainLayer/dataset.py /share/user_data/public/experiment/BigBrainLayer/dataset.py 2>/dev/null; echo 'DONE'\")",
+      "PowerShell(ssh dthbca@n03 \"conda run -n dthbca_imgT python3 /tmp/debug_mask.py\")",
+      "PowerShell(ssh dthbca@n03 \"head -5 /share/user_data/public/experiment/BigBrainLayer/compare_features.py 2>/dev/null; echo '---'; head -5 /share/user_data/dthbca/public/experiment/BigBrainLayer/compare_features.py\")",
+      "PowerShell(ssh dthbca@n03 \"cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && conda run -n dthbca_imgT python3 -c 'import sys; print\\(chr\\(10\\).join\\(sys.path\\)\\)'\")",
+      "PowerShell(ssh dthbca@n03 \"cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && PYTHONPATH=/data100/home/dthbca/project/CellAlign:$PYTHONPATH conda run -n dthbca_imgT python3 debug_full.py\")"
+    ]
+  }
+}
