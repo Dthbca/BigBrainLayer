@@ -149,15 +149,16 @@ def load_mask(ctypes, layers=layer_names_roman, data_root=DATA_ROOT):
     mask = pd.read_csv(path, index_col=0)
     mask = mask.iloc[:, :len(layers)]
     mask.columns = layers
-    mask = mask.T  # now index=class-level cell types, columns=layers
+    mask = mask.T  # now index=layers, columns=class-level cell types
 
-    if not set(ctypes).issubset(set(mask.index)):
+    if not set(ctypes).issubset(set(mask.columns)):
         # ctypes are subclass-level; map to class via the mapping file
         ctype_map = load_ctype_map(data_root)
         # column 'subclass' holds the class-level labels (Astro, Pvalb, etc.)
-        sub_to_class = ctype_map.set_index('plot')['subclass']
-        class_cols = [sub_to_class[c] for c in ctypes]
-        mask = mask.loc[class_cols, :]
+        sub_to_class = ctype_map.set_index('cluster')['subclass']
+        class_cols = [sub_to_class.get(c, c) for c in ctypes]
+        mask = mask.loc[:, class_cols]
+        mask.columns = ctypes
     else:
         mask = mask.loc[:, ctypes]
 

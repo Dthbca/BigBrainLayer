@@ -20,7 +20,12 @@
       "PowerShell(ssh dthbca@n03 \"conda run -n dthbca_imgT python3 /tmp/debug_mask.py\")",
       "PowerShell(ssh dthbca@n03 \"head -5 /share/user_data/public/experiment/BigBrainLayer/compare_features.py 2>/dev/null; echo '---'; head -5 /share/user_data/dthbca/public/experiment/BigBrainLayer/compare_features.py\")",
       "PowerShell(ssh dthbca@n03 \"cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && conda run -n dthbca_imgT python3 -c 'import sys; print\\(chr\\(10\\).join\\(sys.path\\)\\)'\")",
-      "PowerShell(ssh dthbca@n03 \"cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && PYTHONPATH=/data100/home/dthbca/project/CellAlign:$PYTHONPATH conda run -n dthbca_imgT python3 debug_full.py\")"
+      "PowerShell(ssh dthbca@n03 \"cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && PYTHONPATH=/data100/home/dthbca/project/CellAlign:$PYTHONPATH conda run -n dthbca_imgT python3 debug_full.py\")",
+      "PowerShell(ssh n03 \"head -2 /share/user_data/dthbca/public/experiment/BigBrainLayer/dataset/Spatial/cluster_mapping_dict.csv\")",
+      "PowerShell(ssh n03 \"head -10 /share/user_data/dthbca/public/experiment/BigBrainLayer/dataset/Spatial/cluster_mapping_dict.csv\")",
+      "PowerShell(ssh n03 \"export BIGBRAIN_DATASET_ROOT=/share/user_data/dthbca/public/experiment/BigBrainLayer/dataset && export PYTHONPATH=/data100/home/dthbca/project/CellAlign && cd /share/user_data/dthbca/public/experiment/BigBrainLayer/script && /localdata/software/anaconda3/bin/conda run -n dthbca_imgT python main.py --atlas BN --level subclass --mask external --n-spins 1000 --n-jobs 20 --out-dir ../tmpres 2>&1\" > \"C:\\\\Users\\\\dongc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--HomoloMap-experiments-layer-thichness\\\\b7509985-908b-4383-ab4c-5212f4ec1c90\\\\tmp\\\\remote_pipeline.log\")",
+      "PowerShell(ssh n03 \"head -5 /share/user_data/dthbca/public/experiment/BigBrainLayer/dataset/Spatial/mask_by_nc2025.csv\")",
+      "PowerShell(Get-ChildItem Env: | Where-Object { $_.Name -match 'PROXY' })"
     ]
   }
 }
