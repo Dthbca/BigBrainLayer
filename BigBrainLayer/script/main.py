@@ -20,11 +20,12 @@ from analysis import (parallel_cross_layer_correlation,
                       permutation_test_whole_match,
                       permutation_test_exact_mismatch)
 from plotting import plot_layer_heatmap
+from contribution import layer_dominance_analysis, plot_dominance_heatmap
 
 
 def run(atlas='BN', level='subclass', mask_kind='external', n_spins=1000,
        n_jobs=20, seed=42, out_dir=None, show_progress=True,
-       use_clr=True, relative=True):
+       use_clr=True, relative=True, run_contribution=True):
     d = load_all(atlas=atlas, level=level, mask_kind=mask_kind)
     prop_mat, layer_CT, mask = d['prop_mat'], d['layer_CT'], d['mask']
     ctypes, layers = d['ctypes'], layer_names_roman
@@ -48,6 +49,13 @@ def run(atlas='BN', level='subclass', mask_kind='external', n_spins=1000,
         X_layers, Y_layers, ctypes, layers=layers, mask=mask, seed=seed,
         n_jobs=n_jobs, show_progress=show_progress)
 
+    dominance_res = None
+    if run_contribution:
+        dominance_res = layer_dominance_analysis(
+            X_layers, Y_layers, layers,
+            use_adjusted_r_sq=True, method='auto', max_features=15,
+            n_samples=10000, n_jobs=n_jobs, show_progress=show_progress)
+
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
         spin_res.to_csv(os.path.join(out_dir, 'spin_test.csv'), index=False)
@@ -55,6 +63,9 @@ def run(atlas='BN', level='subclass', mask_kind='external', n_spins=1000,
         pd.DataFrame({'observed_stat': [whole_match_res['observed_stat']],
                      'p_value': [whole_match_res['p_value']]}
                     ).to_csv(os.path.join(out_dir, 'whole_match.csv'), index=False)
+
+        if dominance_res is not None:
+            dominance_res.to_csv(os.path.join(out_dir, 'dominance.csv'), index=False)
 
         r_mat = spin_res.pivot(index='layer', columns='ctype', values='correlation'
                                ).reindex(index=layers, columns=ctypes)
@@ -78,10 +89,20 @@ def run(atlas='BN', level='subclass', mask_kind='external', n_spins=1000,
             title='layer specificity (layer-mismatch permutation)',
             output_file=os.path.join(out_dir, 'exact_mismatch_heatmap.png'))
 
+        if dominance_res is not None:
+            dom_mat = dominance_res.pivot(
+                index='layer', columns='ctype', values='total_dominance'
+            ).reindex(index=layers, columns=ctypes)
+            plot_dominance_heatmap(
+                dom_mat, mask=~mask,
+                title='Total dominance: layer composition → thickness',
+                output_file=os.path.join(out_dir, 'dominance_heatmap.png'))
+
     return {
         'spin_test': spin_res,
         'whole_match': whole_match_res,
         'exact_mismatch': exact_mismatch_res,
+        'dominance': dominance_res,
     }
 
 
@@ -97,11 +118,15 @@ def main():
     parser.add_argument('--out-dir', default=os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', 'tmpres'))
     parser.add_argument('--quiet', action='store_true')
+    parser.add_argument('--skip-contribution', dest='run_contribution',
+                        action='store_false', default=True,
+                        help='Skip dominance analysis (faster for quick tests)')
     args = parser.parse_args()
 
     run(atlas=args.atlas, level=args.level, mask_kind=args.mask_kind,
        n_spins=args.n_spins, n_jobs=args.n_jobs, seed=args.seed,
-       out_dir=args.out_dir, show_progress=not args.quiet)
+       out_dir=args.out_dir, show_progress=not args.quiet,
+       run_contribution=args.run_contribution)
 
 
 if __name__ == '__main__':
