@@ -43,13 +43,14 @@ def _layer_dominance_worker(args):
             'layer': layer_name,
             'layer_idx': layer_idx,
             'warning': 'constant_target',
-            'total_dominance': {},
-            'conditional_dominance': {},
+            'total_dominance_array': np.array([]),
             'R2': 0.0
         }
 
     # Dominance analysis
-    total_dom, cond_dom = get_dominance_stats(
+    # Returns: (total_dom_dict, cond_dom_dict)
+    # total_dom_dict has key 'total_dominance' with array of per-feature dominance
+    total_dom_dict, cond_dom_dict = get_dominance_stats(
         X, y,
         use_adjusted_r_sq=use_adjusted,
         method=method,
@@ -59,14 +60,18 @@ def _layer_dominance_worker(args):
         n_jobs=1  # Already parallelized at layer level
     )
 
-    # Total R² (full model)
-    R2 = get_reg_r_sq(X, y, adjust=use_adjusted, model_type='linear', scale_data=True)
+    # Extract the array of per-feature dominance values
+    total_dom_array = total_dom_dict.get('total_dominance', np.zeros(X.shape[1]))
+    if isinstance(total_dom_array, np.ndarray) and total_dom_array.ndim > 1:
+        total_dom_array = total_dom_array.flatten()
+
+    # Full model R² for reference
+    R2 = total_dom_dict.get('full_r_sq', 0.0)
 
     return {
         'layer': layer_name,
         'layer_idx': layer_idx,
-        'total_dominance': total_dom,
-        'conditional_dominance': cond_dom,
+        'total_dominance_array': total_dom_array,
         'R2': R2
     }
 
@@ -108,7 +113,7 @@ def layer_dominance_analysis(
     Returns
     -------
     pd.DataFrame
-        Columns: layer, ctype, total_dominance, conditional_dominance, R2_full.
+        Columns: layer, ctype, total_dominance, R2_full.
         One row per (layer, ctype) combination where ctype is present in that layer.
     """
     if not CELLALIGN_AVAILABLE:
@@ -140,16 +145,16 @@ def layer_dominance_analysis(
                 # Skip layers with constant thickness
                 continue
 
-            # Extract per-ctype dominance
+            # Extract per-ctype dominance from array
             ctypes = X_layers[layer_idx].columns.tolist()
+            total_dom_array = res['total_dominance_array']
+
             for j, ctype in enumerate(ctypes):
-                total_dom = res['total_dominance'].get(j, 0.0)
-                cond_dom = res['conditional_dominance'].get(j, 0.0)
+                total_dom = total_dom_array[j] if j < len(total_dom_array) else 0.0
                 results.append({
                     'layer': layer_name,
                     'ctype': ctype,
                     'total_dominance': total_dom,
-                    'conditional_dominance': cond_dom,
                     'R2_full': R2
                 })
 
