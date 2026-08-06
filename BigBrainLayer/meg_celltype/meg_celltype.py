@@ -9,16 +9,24 @@ Pipeline:
     fetch MEG bands (neuromaps, HCP-S1200, fsLR 4k)
       -> parcellate to BN atlas
       -> z-score outlier mask (drop < -2 SD)
+      -> optional CLR transform of the (region x cell-type) composition
       -> per (band x cell-type) spin correlation      [univariate]
       -> per-band multivariate model R^2 + dominance   [multivariate]
 
+Cell-type ratios are compositional, so CLR (`--use-clr`, default) is the primary
+branch and raw proportions (`--no-clr`) the sensitivity branch; the two write to
+distinct filenames. Multiple-comparison correction is applied ONCE across the
+whole band x cell-type grid (`--fdr-method`, default 'holm'), not per band.
+
 Outputs (written to --out-dir):
-    meg_celltype.csv       per (band x cell-type) spin r / p / p_adj
-    hcps1200_meg_fgc.csv   the parcellated, outlier-masked MEG feature matrix
-    model_r_<group>.csv    per-band multivariate adjusted R^2 + spin p
+    meg_celltype_<tag>.csv  per (band x cell-type) spin r / p / p_adj
+    hcps1200_meg_fgc.csv    the parcellated, outlier-masked MEG feature matrix
+    model_r_<tag>.csv       per-band multivariate adjusted R^2 + spin p
+  where <tag> = <group|all>_<clr|raw>.
 
 Usage:
-    python meg_celltype.py --group glia --n-spins 1000 --n-jobs -1 --out-dir ./out
+    python meg_celltype.py --ratio-csv <subclass_ratio.csv> --group glia \
+        --use-clr --fdr-method holm --n-spins 1000 --n-jobs -1 --out-dir ./out
 
 Environment (remote n03):
     conda activate dthbca_imgT
@@ -29,7 +37,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy.stats import zscore, pearsonr
+from scipy.stats import zscore, pearsonr, gmean
 from statsmodels.stats.multitest import multipletests
 from joblib import Parallel, delayed
 from tqdm import tqdm
@@ -88,11 +96,28 @@ def load_ctype_ratio(path, group=None):
     return ratio
 
 
+def clr_transform(ratio, pseudocount=1e-8):
+    """Standard CLR over the (region x cell-type) ratio table.
+
+    Cell-type ratios are compositional (closure), so a plain Pearson/linear model
+    over raw proportions induces spurious correlations. CLR maps each region's
+    composition to log-ratios about its geometric mean, lifting the closure
+    constraint. NB: this is the *unlayered* whole-region composition, so the CLR
+    reference is the geometric mean over the columns passed in (all cell types, or
+    a functional group when `--group` is set). Structural zeros are NOT removed;
+    a `pseudocount` is added before the log (matches prep.coda_transform CLR).
+    """
+    data = ratio + pseudocount
+    g = gmean(data, axis=1)
+    return pd.DataFrame({c: np.log(data[c] / g) for c in ratio.columns},
+                        index=ratio.index)
+
+
 # ---------------------------------------------------------------------------
 # 2. Univariate: per (band x cell-type) spin correlation
 # ---------------------------------------------------------------------------
 def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
-                     method='Alexander-Bloch', n_jobs=-1, fdr_method='fdr_bh'):
+                     method='Alexander-Bloch', n_jobs=-1, fdr_method='holm'):
     """Spin-test correlation for every (MEG band, cell type) pair.
 
     `data`        : (n_region x n_band) MEG feature matrix.
@@ -100,32 +125,49 @@ def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
 
     Uses a spatial-autocorrelation-preserving null: cell-type maps are held
     fixed and the MEG map is rotated (`SpinTest.spins`). p is the fraction of
-    null |r| >= observed |r|. Returns a DataFrame indexed by cell type with
+    null |r| >= observed |r|. NaNs (from CLR pseudocount edge cases or MEG
+    outlier masking) are dropped pairwise before each correlation.
+
+    Multiple-comparison correction is applied ONCE across the whole
+    band x cell-type grid (not per band) via `fdr_method` -- the true test
+    family is every cell tested. Returns a DataFrame indexed by cell type with
     `<band>_ratio_spin_{r,p,p_adj}` columns.
     """
     spinner = SpinTest(atlas=atlas, n_spins=n_spins, method=method)
     spins = spinner.spins
 
-    corr = pd.DataFrame(index=ctype_ratio.columns)
-
     def _one(ctype, band):
         x = ctype_ratio[ctype].values
         y = data[band].values
-        r, _ = pearsonr(x, y)
-        rotated = y[spins]
-        r_null = np.array([pearsonr(x, rotated[:, i])[0]
+        m = ~np.isnan(x) & ~np.isnan(y)
+        r, _ = pearsonr(x[m], y[m])
+        rotated = y[spins]                       # rotate full map, then mask per spin
+        r_null = np.array([pearsonr(x[m], rotated[m, i])[0]
                            for i in range(rotated.shape[1])])
         p_value = (1 + np.sum(np.abs(r_null) >= np.abs(r))) / (rotated.shape[1] + 1)
         return r, p_value
 
-    for band in tqdm(data.columns, desc='spin-corr'):
+    bands = list(data.columns)
+    ctypes = list(ctype_ratio.columns)
+    r_grid, p_grid = {}, {}
+    for band in tqdm(bands, desc='spin-corr'):
         results = Parallel(n_jobs=n_jobs)(
-            delayed(_one)(ctype, band) for ctype in ctype_ratio.columns)
-        r_list = [res[0] for res in results]
-        p_list = [res[1] for res in results]
-        corr[f'{band}_ratio_spin_r'] = r_list
-        corr[f'{band}_ratio_spin_p'] = p_list
-        corr[f'{band}_ratio_spin_p_adj'] = multipletests(p_list, method=fdr_method)[1]
+            delayed(_one)(ct, band) for ct in ctypes)
+        r_grid[band] = [res[0] for res in results]
+        p_grid[band] = [res[1] for res in results]
+
+    # --- unified FDR/FWER across the entire band x cell-type grid ---
+    flat_p = np.array([p_grid[b][k] for b in bands for k in range(len(ctypes))])
+    finite = ~np.isnan(flat_p)
+    flat_adj = np.full_like(flat_p, np.nan)
+    flat_adj[finite] = multipletests(flat_p[finite], method=fdr_method)[1]
+    adj_grid = flat_adj.reshape(len(bands), len(ctypes))
+
+    corr = pd.DataFrame(index=ctypes)
+    for j, band in enumerate(bands):
+        corr[f'{band}_ratio_spin_r'] = r_grid[band]
+        corr[f'{band}_ratio_spin_p'] = p_grid[band]
+        corr[f'{band}_ratio_spin_p_adj'] = adj_grid[j]
     return corr
 
 
@@ -134,8 +176,11 @@ def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
 # ---------------------------------------------------------------------------
 def model_r_sq_per_band(data, ctype_ratio, atlas='BN', n_spins=1000,
                         method='Alexander-Bloch', model_type='linear',
-                        fdr_method='fdr_bh'):
-    """Multivariate adjusted R^2 (all cell types -> each band) with spin p."""
+                        fdr_method='holm'):
+    """Multivariate adjusted R^2 (all cell types -> each band) with spin p.
+
+    Model p-values are corrected across the 6 bands with `fdr_method`.
+    """
     spinner = SpinTest(atlas=atlas, n_spins=n_spins, method=method)
     X = zscore(ctype_ratio.values, nan_policy='omit')
 
@@ -164,25 +209,31 @@ def dominance_per_band(data, ctype_ratio, band):
 # CLI
 # ---------------------------------------------------------------------------
 def run(ratio_csv, group=None, atlas='BN', n_spins=1000, n_jobs=-1,
-        out_dir='.', do_model=True):
+        out_dir='.', use_clr=True, fdr_method='holm', do_model=True):
     os.makedirs(out_dir, exist_ok=True)
 
     data = load_meg_bands(trg=atlas)
     data.to_csv(os.path.join(out_dir, 'hcps1200_meg_fgc.csv'))
 
     ctype_ratio = load_ctype_ratio(ratio_csv, group=group)
+    if use_clr:
+        ctype_ratio = clr_transform(ctype_ratio)
 
-    corr = spin_correlation(data, ctype_ratio, atlas=atlas,
-                            n_spins=n_spins, n_jobs=n_jobs)
-    corr.to_csv(os.path.join(out_dir, 'meg_celltype.csv'))
-    print(f'[meg_celltype] wrote spin correlations for '
-          f'{ctype_ratio.shape[1]} cell types x {data.shape[1]} bands')
+    # output tag keeps the raw and CLR branches side by side (no overwrite)
+    tag = f"{group or 'all'}_{'clr' if use_clr else 'raw'}"
+
+    corr = spin_correlation(data, ctype_ratio, atlas=atlas, n_spins=n_spins,
+                            n_jobs=n_jobs, fdr_method=fdr_method)
+    corr.to_csv(os.path.join(out_dir, f'meg_celltype_{tag}.csv'))
+    print(f'[meg_celltype] {tag}: spin correlations for '
+          f'{ctype_ratio.shape[1]} cell types x {data.shape[1]} bands '
+          f'(FDR/FWER={fdr_method}, unified over grid)')
 
     if do_model:
-        suffix = f'_{group}' if group else ''
-        model = model_r_sq_per_band(data, ctype_ratio, atlas=atlas, n_spins=n_spins)
-        model.to_csv(os.path.join(out_dir, f'model_r{suffix}.csv'), index=False)
-        print(f'[meg_celltype] wrote per-band model R^2 -> model_r{suffix}.csv')
+        model = model_r_sq_per_band(data, ctype_ratio, atlas=atlas,
+                                    n_spins=n_spins, fdr_method=fdr_method)
+        model.to_csv(os.path.join(out_dir, f'model_r_{tag}.csv'), index=False)
+        print(f'[meg_celltype] {tag}: per-band model R^2 -> model_r_{tag}.csv')
 
 
 def main():
@@ -197,12 +248,23 @@ def main():
     ap.add_argument('--n-spins', type=int, default=1000)
     ap.add_argument('--n-jobs', type=int, default=-1)
     ap.add_argument('--out-dir', default='.')
+    clr = ap.add_mutually_exclusive_group()
+    clr.add_argument('--use-clr', dest='use_clr', action='store_true',
+                     help='CLR-transform the ratios (default; primary branch)')
+    clr.add_argument('--no-clr', dest='use_clr', action='store_false',
+                     help='use raw proportions (sensitivity branch)')
+    ap.set_defaults(use_clr=True)
+    ap.add_argument('--fdr-method', default='holm',
+                    help="multipletests method, applied ONCE over the whole "
+                         "band x cell-type grid (default 'holm'; e.g. 'fdr_bh', "
+                         "'bonferroni')")
     ap.add_argument('--no-model', action='store_true',
                     help='skip the multivariate model R^2 step')
     args = ap.parse_args()
 
     run(ratio_csv=args.ratio_csv, group=args.group, atlas=args.atlas,
         n_spins=args.n_spins, n_jobs=args.n_jobs, out_dir=args.out_dir,
+        use_clr=args.use_clr, fdr_method=args.fdr_method,
         do_model=not args.no_model)
 
 
