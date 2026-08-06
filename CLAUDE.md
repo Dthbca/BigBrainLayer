@@ -21,11 +21,17 @@ Sweep all 4 pipeline branches (CLR vs raw × relative vs absolute thickness):
 python run_branches.py --atlas BN --level subclass --n-spins 1000 --n-jobs 20 --out-dir ../tmpres/branches
 ```
 
-Outputs per run: `spin_test.csv`, `exact_mismatch.csv`, `whole_match.csv`, `spin_heatmap.png`, `exact_mismatch_heatmap.png`.
+Outputs per run: `spin_test.csv`, `exact_mismatch.csv`, `whole_match.csv`, `dominance.csv`, `spin_heatmap.png`, `exact_mismatch_heatmap.png`, `dominance_heatmap.png`.
+
+Add `--skip-contribution` to skip the dominance analysis (it's the slowest stage for quick tests):
+
+```
+python main.py --atlas BN --level subclass --n-spins 100 --n-jobs 20 --skip-contribution --out-dir ../tmpres
+```
 
 ## Pipeline architecture
 
-`dataset.py → prep.py → analysis.py → plotting.py`, wired by `main.py`.
+`dataset.py → prep.py → analysis.py → plotting.py`, plus `contribution.py` for the overall-contribution analysis, wired by `main.py`.
 
 **dataset.py** — all I/O. Key function: `load_all()` returns a dict with `prop_mat` (region×layer×ctype proportions), `count_arr` (raw counts), `layer_CT` (BigBrain thickness), and `mask` (laminar presence mask). Atlas relabeling happens here: D99→BN for cell counts via `vol_relabel(..., cross_species=True)`, FGC→BN for thickness.
 
@@ -37,6 +43,13 @@ Outputs per run: `spin_test.csv`, `exact_mismatch.csv`, `whole_match.csv`, `spin
 - `permutation_test_exact_mismatch`: exact enumeration of all L! permutations excluding self-match, per (layer, ctype) cell
 
 All tests apply Bonferroni FDR correction across the tested (layer, ctype) cells.
+
+**contribution.py** — overall-contribution analysis: how much of each layer's thickness variance is explained by its cell-type composition, and which cell types drive it. Wraps CellAlign's dominance analysis (Azen & Budescu), fit per layer (never cross-layer, to respect the same structural constraint as `analysis.py`):
+- `layer_dominance_analysis(X_layers, Y_layers, layers, use_adjusted_r_sq=True, method='auto', max_features=15, n_samples=10000, n_jobs=-1)`: for each layer, calls `CellAlign.stats.analysis.get_dominance_stats` on that layer's CLR features vs its thickness. Returns a long-format `DataFrame` (`layer`, `ctype`, `total_dominance`, `R2_full`) where `total_dominance` sums exactly to `R2_full` across ctypes within a layer — this is what dominance analysis guarantees (verified on n03: 100.00% match in all 6 layers).
+- `method='auto'` picks exhaustive dominance (all 2^p-1 feature subsets) when a layer has ≤`max_features` present cell types, and Monte Carlo approximate dominance (`n_samples` sampled subsets) above that. In the real dataset (external mask, subclass level), per-layer feature counts are Layer I=8, II=13, III=22, IV=18, V=19, VI=17 — so Layers I-II run exhaustive and III-VI fall back to approximate.
+- `plot_dominance_heatmap(data, mask=None, ...)`: renders the layer x ctype dominance matrix as a heatmap (own renderer, not `plotting.plot_layer_heatmap`).
+- `layer_shap_analysis` / `get_shap_stats`-based SHAP attribution also exists in this module but is unvalidated — only the dominance path has been tested end-to-end.
+- Wired into `main.py` as the `run_contribution` step (default on); `--skip-contribution` skips it. Writes `dominance.csv` and `dominance_heatmap.png` when `run_contribution=True`.
 
 **run_branches.py** — sweeps `use_clr ∈ {True, False}` × `relative ∈ {True, False}` (4 branches), fixing `mask_kind='external'`. Produces a `branch_summary.csv` and comparison bar chart.
 
