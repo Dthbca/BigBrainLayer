@@ -8,21 +8,24 @@ spatial-autocorrelation-preserving spin nulls.
 
 ## Feature families
 
-Two feature families share one correlation pipeline, differing only in atlas
-space and data source:
+Two feature families share one correlation pipeline in the **unified BN (Brainnetome,
+105 regions) atlas space**:
 
-| `--feature` | atlas | features | cell-type ratios | alignment |
-|-------------|-------|----------|------------------|-----------|
-| `meg` (default) | BN (105 regions) | HCP-S1200 MEG band power (6 bands: delta/theta/alpha/beta/gamma1/gamma2, neuromaps) | user CSV (`--ratio-csv`) in BN space | positional (rows must match) |
-| `enigma` | FGC (3670 parcels) | ENIGMA case-control cortical-thickness abnormality (13 disorders, Nat. Neurosci. 2022 s41593-022-01186-3, relabelled DK→FGC, Gaussian-smoothed) | `fetch_ctype_ratio(level='subclass')` in FGC space | index intersection |
+| `--feature` | features | source |
+|-------------|----------|--------|
+| `meg` (default) | HCP-S1200 MEG band power (6 bands: delta/theta/alpha/beta/gamma1/gamma2) | neuromaps, parcellated fsLR→BN |
+| `enigma` | ENIGMA case-control cortical-thickness abnormality (13 disorders, Nat. Neurosci. 2022 s41593-022-01186-3) | DK atlas, relabelled DK→BN, Gaussian-smoothed |
+
+Both require `--ratio-csv` (subclass cell-type ratios in BN space, 105 regions),
+aligned positionally (row order must match).
 
 ## Pipeline
 
 1. **Fetch feature maps** — MEG: `neuromaps.datasets.fetch_annotation(source='hcps1200',
    desc='meg<band>', space='fsLR', den='4k')`, parcellate to BN. ENIGMA:
-   `fetch_enigma(atlas='DK')`, relabel DK→FGC, Gaussian-smooth (radius=8, σ=5).
-2. **Load cell-type ratios** — MEG: from `--ratio-csv` (BN space, positional align).
-   ENIGMA: `fetch_ctype_ratio(level='subclass')` (FGC space, index align).
+   `fetch_enigma(atlas='DK')`, relabel DK→BN, Gaussian-smooth (radius=8, σ=5).
+2. **Load cell-type ratios** — from `--ratio-csv` (BN space, 105 regions,
+   positional alignment).
 3. **Outlier mask (MEG only)** — z-score per band, drop values < −2 SD (set to NaN).
 4. **CLR (optional, default on)** — cell-type ratios are compositional (closure),
    so a plain correlation over raw proportions induces spurious anti-correlations.
@@ -70,13 +73,15 @@ python meg_celltype.py --feature meg \
     --group glia --no-clr --fdr-method holm \
     --n-spins 1000 --n-jobs -1 --out-dir ./out
 
-# ENIGMA disorders (FGC space; ratios fetched automatically)
+# ENIGMA disorders (BN space; same ratio CSV as MEG)
 python meg_celltype.py --feature enigma \
+    --ratio-csv /data100/home/dthbca/project/CellAlign/tmp/subclass_ratio.csv \
     --use-clr --fdr-method holm \
     --n-spins 1000 --n-jobs -1 --out-dir ./out
 
 # ENIGMA without smoothing (if wb_command unavailable in your shell)
 python meg_celltype.py --feature enigma --no-smooth \
+    --ratio-csv /data100/home/dthbca/project/CellAlign/tmp/subclass_ratio.csv \
     --use-clr --fdr-method holm \
     --n-spins 1000 --n-jobs -1 --out-dir ./out
 ```

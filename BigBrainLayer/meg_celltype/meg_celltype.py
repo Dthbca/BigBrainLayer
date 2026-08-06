@@ -3,15 +3,18 @@
 Organised from the exploratory notebook `CellAlign/spin_test.ipynb` (remote n03).
 Tests whether the cortical distribution of cell-type ratios (from spatial
 transcriptomics) couples with cortical feature maps, using spatial-
-autocorrelation-preserving spin nulls. Two feature families share one pipeline:
+autocorrelation-preserving spin nulls. Two feature families share one pipeline
+in the unified **BN (Brainnetome, 105 regions) atlas space**:
 
-    --feature meg     HCP-S1200 MEG band-power maps (neuromaps), BN atlas space.
-    --feature enigma  ENIGMA case-control cortical-thickness abnormality maps
-                      (13 disorders, Nat. Neurosci. 2022 s41593-022-01186-3),
-                      relabelled DK -> FGC and smoothed.
+    --feature meg     HCP-S1200 MEG band power (neuromaps, fsLR→BN).
+    --feature enigma  ENIGMA case-control cortical-thickness abnormality
+                      (13 disorders, Nat. Neurosci. 2022 s41593-022-01186-3,
+                      relabelled DK→BN, smoothed).
+
+Both require --ratio-csv (subclass ratios in BN space, positional alignment).
 
 Pipeline:
-    load feature maps -> align to cell-type ratios in the same atlas space
+    load feature maps -> align to cell-type ratios in BN atlas space
       -> (MEG only) z-score outlier mask (drop < -2 SD)
       -> optional CLR transform of the (region x cell-type) composition
       -> per (feature x cell-type) spin correlation     [univariate]
@@ -29,11 +32,11 @@ Outputs (written to --out-dir):
   where <tag> = <feature>_<group|all>_<clr|raw>.
 
 Usage:
-    # MEG (BN space; needs a BN-space ratio CSV)
+    # MEG
     python meg_celltype.py --feature meg --ratio-csv <subclass_ratio.csv> \
         --group glia --use-clr --fdr-method holm --n-spins 1000 --out-dir ./out
-    # ENIGMA disorders (FGC space; ratios fetched automatically)
-    python meg_celltype.py --feature enigma \
+    # ENIGMA disorders (same ratio CSV, same BN space)
+    python meg_celltype.py --feature enigma --ratio-csv <subclass_ratio.csv> \
         --use-clr --fdr-method holm --n-spins 1000 --out-dir ./out
 
 Environment (remote n03):
@@ -153,11 +156,13 @@ def resolve_inputs(feature, atlas=None, ratio_csv=None, group=None,
                    ratio_level='subclass', smooth=True):
     """Load a feature matrix + its row-aligned cell-type ratios.
 
-    feature='meg'    : HCP-S1200 MEG bands in BN space; ratios from `ratio_csv`
-                       (positional row alignment, matching the source notebook).
-    feature='enigma' : ENIGMA disorder maps relabelled to FGC; ratios from
-                       `fetch_ctype_ratio` in the same FGC space (aligned on the
-                       shared parcel index).
+    Both feature families use the unified **BN (Brainnetome, 105 regions) atlas**
+    and positional row alignment (via reset_index):
+
+    feature='meg'    : HCP-S1200 MEG bands, parcellated fsLR→BN; ratios from
+                       `ratio_csv` (must have 105 rows matching BN region order).
+    feature='enigma' : ENIGMA disorder maps, relabelled DK→BN and smoothed; ratios
+                       from `ratio_csv` (same BN space as MEG).
 
     Returns (data, ctype_ratio, atlas) with identical, positionally-aligned rows.
     """
@@ -173,15 +178,15 @@ def resolve_inputs(feature, atlas=None, ratio_csv=None, group=None,
         return data.reset_index(drop=True), ratio.reset_index(drop=True), atlas
 
     if feature == 'enigma':
-        atlas = atlas or 'FGC'
+        atlas = atlas or 'BN'
         data = load_enigma_features(atlas=atlas, smooth=smooth)
-        ratio = fetch_ctype_ratio(level=ratio_level, smooth=False)
-        if group is not None:
-            ratio = ratio.loc[:, ratio.columns.str.contains(CTYPE_GROUPS[group])]
-        ind = ratio.index.intersection(data.index)     # shared FGC parcel ids
-        if len(ind) == 0:
-            raise ValueError('No shared parcels between ENIGMA maps and ratios')
-        return data.loc[ind], ratio.loc[ind], atlas
+        if ratio_csv is None:
+            raise ValueError("feature='enigma' needs --ratio-csv (BN-space ratios)")
+        ratio = load_ctype_ratio(ratio_csv, group=group)
+        if len(data) != len(ratio):
+            raise ValueError(f'ENIGMA rows ({len(data)}) != ratio rows ({len(ratio)}); '
+                             'expected same BN region order for positional align')
+        return data.reset_index(drop=True), ratio.reset_index(drop=True), atlas
 
     raise ValueError(f"unknown feature '{feature}' (use 'meg' or 'enigma')")
 
@@ -316,12 +321,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--feature', choices=['meg', 'enigma'], default='meg',
-                    help="feature family: 'meg' (HCP-S1200 bands, BN space) or "
-                         "'enigma' (disorder cortical-thickness maps, FGC space)")
-    ap.add_argument('--ratio-csv',
-                    help='subclass cell-type ratio CSV (region x cell type); '
-                         "required for --feature meg. Ignored for enigma "
-                         "(ratios fetched in FGC space via fetch_ctype_ratio).")
+                    help="feature family: 'meg' (HCP-S1200 bands) or "
+                         "'enigma' (disorder cortical-thickness maps); "
+                         "both use BN atlas")
+    ap.add_argument('--ratio-csv', required=True,
+                    help='subclass cell-type ratio CSV (region x cell type) in BN space')
     ap.add_argument('--group', choices=list(CTYPE_GROUPS),
                     help='restrict to a functional group (glia/in/ex); '
                          'omit to use all cell types')
@@ -348,9 +352,6 @@ def main():
     ap.add_argument('--no-model', action='store_true',
                     help='skip the multivariate model R^2 step')
     args = ap.parse_args()
-
-    if args.feature == 'meg' and not args.ratio_csv:
-        ap.error("--ratio-csv is required for --feature meg")
 
     run(feature=args.feature, ratio_csv=args.ratio_csv, group=args.group,
         atlas=args.atlas, n_spins=args.n_spins, n_jobs=args.n_jobs,
