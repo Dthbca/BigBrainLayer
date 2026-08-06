@@ -41,7 +41,16 @@ aligned positionally (row order must match).
    thickness pipeline's FWER control). → `<feature>_celltype_<tag>.csv`.
 6. **Multivariate** — per feature, adjusted R² of the full cell-type set
    (`get_reg_r_sq` / `get_reg_r_pval`, corrected across all features) and
-   per-cell-type `get_dominance_stats` relative importance. → `model_r_<tag>.csv`.
+   per-cell-type relative importance. Two methods available:
+   - `--importance-method dominance` (default for ≤12 cell types): exact Shapley
+     values via exhaustive subset enumeration (`get_dominance_stats`). Slow for
+     >12 features (2^p subsets).
+   - `--importance-method shap` (default for >12 cell types): fast Shapley
+     approximation via `shap.LinearExplainer`. Unlocks full 23-type analysis.
+   - `--importance-method auto` (default): auto-select based on feature count.
+   
+   Output: `model_r_<tag>.csv` (per-feature R²/p) + `importance_<tag>.csv`
+   (per-cell-type relative importance, feature × cell-type matrix).
 
 ## Cell-type groups
 
@@ -84,6 +93,18 @@ python meg_celltype.py --feature enigma --no-smooth \
     --ratio-csv /data100/home/dthbca/project/CellAlign/tmp/subclass_ratio.csv \
     --use-clr --fdr-method holm \
     --n-spins 1000 --n-jobs -1 --out-dir ./out
+
+# Full 23 cell types (auto-switches to SHAP for importance)
+python meg_celltype.py --feature meg \
+    --ratio-csv /data100/home/dthbca/project/CellAlign/tmp/subclass_ratio.csv \
+    --use-clr --fdr-method holm \
+    --n-spins 1000 --n-jobs -1 --out-dir ./out
+
+# Force SHAP even for small feature sets
+python meg_celltype.py --feature meg \
+    --ratio-csv /data100/home/dthbca/project/CellAlign/tmp/subclass_ratio.csv \
+    --group glia --importance-method shap \
+    --use-clr --n-spins 1000 --out-dir ./out
 ```
 
 ## Outputs
@@ -95,6 +116,7 @@ python meg_celltype.py --feature enigma --no-smooth \
 | `<feature>_celltype_<tag>.csv` | per (feature × cell type) `spin_r`, `spin_p`, `spin_p_adj` (grid-wide correction) |
 | `hcps1200_meg_fgc.csv` | parcellated, outlier-masked MEG feature matrix (MEG runs only) |
 | `model_r_<tag>.csv` | per-feature adjusted R² + spin p (multivariate) |
+| `importance_<tag>.csv` | per-cell-type relative importance (feature × cell type matrix, dominance or SHAP) |
 
 ## Dependencies
 
