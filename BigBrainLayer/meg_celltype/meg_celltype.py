@@ -1,17 +1,21 @@
-"""MEG frequency-band power ~ cell-type-ratio correlation.
+"""Cortical feature-map ~ cell-type-ratio correlation (MEG + ENIGMA disorders).
 
 Organised from the exploratory notebook `CellAlign/spin_test.ipynb` (remote n03).
 Tests whether the cortical distribution of cell-type ratios (from spatial
-transcriptomics, projected to the Brainnetome / BN atlas) couples with HCP-S1200
-MEG band-power maps, using spatial-autocorrelation-preserving spin nulls.
+transcriptomics) couples with cortical feature maps, using spatial-
+autocorrelation-preserving spin nulls. Two feature families share one pipeline:
+
+    --feature meg     HCP-S1200 MEG band-power maps (neuromaps), BN atlas space.
+    --feature enigma  ENIGMA case-control cortical-thickness abnormality maps
+                      (13 disorders, Nat. Neurosci. 2022 s41593-022-01186-3),
+                      relabelled DK -> FGC and smoothed.
 
 Pipeline:
-    fetch MEG bands (neuromaps, HCP-S1200, fsLR 4k)
-      -> parcellate to BN atlas
-      -> z-score outlier mask (drop < -2 SD)
+    load feature maps -> align to cell-type ratios in the same atlas space
+      -> (MEG only) z-score outlier mask (drop < -2 SD)
       -> optional CLR transform of the (region x cell-type) composition
-      -> per (band x cell-type) spin correlation      [univariate]
-      -> per-band multivariate model R^2 + dominance   [multivariate]
+      -> per (feature x cell-type) spin correlation     [univariate]
+      -> per-feature multivariate model R^2 + dominance  [multivariate]
 
 Cell-type ratios are compositional, so CLR (`--use-clr`, default) is the primary
 branch and raw proportions (`--no-clr`) the sensitivity branch; the two write to
@@ -19,14 +23,18 @@ distinct filenames. Multiple-comparison correction is applied ONCE across the
 whole band x cell-type grid (`--fdr-method`, default 'holm'), not per band.
 
 Outputs (written to --out-dir):
-    meg_celltype_<tag>.csv  per (band x cell-type) spin r / p / p_adj
-    hcps1200_meg_fgc.csv    the parcellated, outlier-masked MEG feature matrix
-    model_r_<tag>.csv       per-band multivariate adjusted R^2 + spin p
-  where <tag> = <group|all>_<clr|raw>.
+    <feature>_celltype_<tag>.csv  per (feature x cell-type) spin r / p / p_adj
+    hcps1200_meg_fgc.csv          MEG feature matrix (MEG runs only)
+    model_r_<tag>.csv             per-feature multivariate adjusted R^2 + spin p
+  where <tag> = <feature>_<group|all>_<clr|raw>.
 
 Usage:
-    python meg_celltype.py --ratio-csv <subclass_ratio.csv> --group glia \
-        --use-clr --fdr-method holm --n-spins 1000 --n-jobs -1 --out-dir ./out
+    # MEG (BN space; needs a BN-space ratio CSV)
+    python meg_celltype.py --feature meg --ratio-csv <subclass_ratio.csv> \
+        --group glia --use-clr --fdr-method holm --n-spins 1000 --out-dir ./out
+    # ENIGMA disorders (FGC space; ratios fetched automatically)
+    python meg_celltype.py --feature enigma \
+        --use-clr --fdr-method holm --n-spins 1000 --out-dir ./out
 
 Environment (remote n03):
     conda activate dthbca_imgT
@@ -45,6 +53,8 @@ from tqdm import tqdm
 # --- CellAlign dependencies (available in the dthbca_imgT env) ---------------
 from neuromaps.datasets import fetch_annotation
 from CellAlign.transforms import load_data
+from CellAlign.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
+from CellAlign.parcellation import surf_relabel, parc_smooth
 from CellAlign.stats.nulls import SpinTest
 from CellAlign.stats import get_reg_r_sq, get_reg_r_pval
 from CellAlign.stats.analysis import get_dominance_stats
@@ -87,6 +97,29 @@ def load_meg_bands(bands=MEG_BANDS, trg='BN', den='4k', mask_outliers=True,
     return data
 
 
+def load_enigma_features(atlas='FGC', smooth=True, smooth_radius=8,
+                         smooth_method='gaussian', smooth_sigma=5):
+    """Fetch ENIGMA disorder cortical-thickness maps, relabel DK -> `atlas`, smooth.
+
+    ENIGMA case-control cortical abnormality maps (13 disorders, DK atlas,
+    Nat. Neurosci. 2022, s41593-022-01186-3). Native space is DK (34 L-hemi
+    regions); we surface-relabel to the target atlas and (by default) Gaussian-
+    smooth so the map sits in the same space as the cell-type ratios. Returns a
+    (n_region x n_disorder) DataFrame.
+
+    `smooth` needs Connectome Workbench (`wb_command`) on PATH for geodesic
+    distances; set smooth=False (`--no-smooth`) in environments without it.
+    """
+    disease_parc = fetch_enigma(atlas='DK')
+    disease = surf_relabel(data=disease_parc, src='DK', trg=atlas, method='mean')
+    if smooth:
+        disease = parc_smooth(disease, radius=smooth_radius, method=smooth_method,
+                              sigma=smooth_sigma,
+                              mesh=fetch_fslr(surf='inflated', return_path=True),
+                              parc=fetch_parc(key=atlas))
+    return disease
+
+
 def load_ctype_ratio(path, group=None):
     """Load subclass cell-type ratio table; optionally slice to a functional group."""
     ratio = pd.read_csv(path, index_col=0)
@@ -114,7 +147,47 @@ def clr_transform(ratio, pseudocount=1e-8):
 
 
 # ---------------------------------------------------------------------------
-# 2. Univariate: per (band x cell-type) spin correlation
+# Feature registry: bind each feature family to its atlas / loader / ratio src
+# ---------------------------------------------------------------------------
+def resolve_inputs(feature, atlas=None, ratio_csv=None, group=None,
+                   ratio_level='subclass', smooth=True):
+    """Load a feature matrix + its row-aligned cell-type ratios.
+
+    feature='meg'    : HCP-S1200 MEG bands in BN space; ratios from `ratio_csv`
+                       (positional row alignment, matching the source notebook).
+    feature='enigma' : ENIGMA disorder maps relabelled to FGC; ratios from
+                       `fetch_ctype_ratio` in the same FGC space (aligned on the
+                       shared parcel index).
+
+    Returns (data, ctype_ratio, atlas) with identical, positionally-aligned rows.
+    """
+    if feature == 'meg':
+        atlas = atlas or 'BN'
+        data = load_meg_bands(trg=atlas)
+        if ratio_csv is None:
+            raise ValueError("feature='meg' needs --ratio-csv (BN-space ratios)")
+        ratio = load_ctype_ratio(ratio_csv, group=group)
+        if len(data) != len(ratio):
+            raise ValueError(f'MEG rows ({len(data)}) != ratio rows ({len(ratio)}); '
+                             'expected same BN region order for positional align')
+        return data.reset_index(drop=True), ratio.reset_index(drop=True), atlas
+
+    if feature == 'enigma':
+        atlas = atlas or 'FGC'
+        data = load_enigma_features(atlas=atlas, smooth=smooth)
+        ratio = fetch_ctype_ratio(level=ratio_level, smooth=False)
+        if group is not None:
+            ratio = ratio.loc[:, ratio.columns.str.contains(CTYPE_GROUPS[group])]
+        ind = ratio.index.intersection(data.index)     # shared FGC parcel ids
+        if len(ind) == 0:
+            raise ValueError('No shared parcels between ENIGMA maps and ratios')
+        return data.loc[ind], ratio.loc[ind], atlas
+
+    raise ValueError(f"unknown feature '{feature}' (use 'meg' or 'enigma')")
+
+
+# ---------------------------------------------------------------------------
+# 2. Univariate: per (feature x cell-type) spin correlation
 # ---------------------------------------------------------------------------
 def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
                      method='Alexander-Bloch', n_jobs=-1, fdr_method='holm'):
@@ -208,43 +281,52 @@ def dominance_per_band(data, ctype_ratio, band):
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
-def run(ratio_csv, group=None, atlas='BN', n_spins=1000, n_jobs=-1,
-        out_dir='.', use_clr=True, fdr_method='holm', do_model=True):
+def run(feature='meg', ratio_csv=None, group=None, atlas=None, n_spins=1000,
+        n_jobs=-1, out_dir='.', use_clr=True, fdr_method='holm', do_model=True,
+        smooth=True):
     os.makedirs(out_dir, exist_ok=True)
 
-    data = load_meg_bands(trg=atlas)
-    data.to_csv(os.path.join(out_dir, 'hcps1200_meg_fgc.csv'))
+    data, ctype_ratio, atlas = resolve_inputs(
+        feature, atlas=atlas, ratio_csv=ratio_csv, group=group, smooth=smooth)
 
-    ctype_ratio = load_ctype_ratio(ratio_csv, group=group)
+    if feature == 'meg':                    # keep the raw feature matrix on disk
+        data.to_csv(os.path.join(out_dir, 'hcps1200_meg_fgc.csv'))
+
     if use_clr:
         ctype_ratio = clr_transform(ctype_ratio)
 
-    # output tag keeps the raw and CLR branches side by side (no overwrite)
-    tag = f"{group or 'all'}_{'clr' if use_clr else 'raw'}"
+    # output tag keeps feature / group / raw-vs-CLR branches side by side
+    tag = f"{feature}_{group or 'all'}_{'clr' if use_clr else 'raw'}"
 
     corr = spin_correlation(data, ctype_ratio, atlas=atlas, n_spins=n_spins,
                             n_jobs=n_jobs, fdr_method=fdr_method)
-    corr.to_csv(os.path.join(out_dir, f'meg_celltype_{tag}.csv'))
+    corr.to_csv(os.path.join(out_dir, f'{feature}_celltype_{tag}.csv'))
     print(f'[meg_celltype] {tag}: spin correlations for '
-          f'{ctype_ratio.shape[1]} cell types x {data.shape[1]} bands '
-          f'(FDR/FWER={fdr_method}, unified over grid)')
+          f'{ctype_ratio.shape[1]} cell types x {data.shape[1]} features '
+          f'(atlas={atlas}, FDR/FWER={fdr_method}, unified over grid)')
 
     if do_model:
         model = model_r_sq_per_band(data, ctype_ratio, atlas=atlas,
                                     n_spins=n_spins, fdr_method=fdr_method)
         model.to_csv(os.path.join(out_dir, f'model_r_{tag}.csv'), index=False)
-        print(f'[meg_celltype] {tag}: per-band model R^2 -> model_r_{tag}.csv')
+        print(f'[meg_celltype] {tag}: per-feature model R^2 -> model_r_{tag}.csv')
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--ratio-csv', required=True,
-                    help='subclass cell-type ratio CSV (region x cell type)')
+    ap.add_argument('--feature', choices=['meg', 'enigma'], default='meg',
+                    help="feature family: 'meg' (HCP-S1200 bands, BN space) or "
+                         "'enigma' (disorder cortical-thickness maps, FGC space)")
+    ap.add_argument('--ratio-csv',
+                    help='subclass cell-type ratio CSV (region x cell type); '
+                         "required for --feature meg. Ignored for enigma "
+                         "(ratios fetched in FGC space via fetch_ctype_ratio).")
     ap.add_argument('--group', choices=list(CTYPE_GROUPS),
                     help='restrict to a functional group (glia/in/ex); '
                          'omit to use all cell types')
-    ap.add_argument('--atlas', default='BN')
+    ap.add_argument('--atlas', default=None,
+                    help='target atlas; defaults per feature (meg->BN, enigma->FGC)')
     ap.add_argument('--n-spins', type=int, default=1000)
     ap.add_argument('--n-jobs', type=int, default=-1)
     ap.add_argument('--out-dir', default='.')
@@ -258,14 +340,22 @@ def main():
                     help="multipletests method, applied ONCE over the whole "
                          "band x cell-type grid (default 'holm'; e.g. 'fdr_bh', "
                          "'bonferroni')")
+    ap.add_argument('--no-smooth', dest='smooth', action='store_false',
+                    help='skip Gaussian surface smoothing of ENIGMA maps '
+                         '(needed where Connectome Workbench / wb_command is '
+                         'unavailable); no effect for --feature meg')
+    ap.set_defaults(smooth=True)
     ap.add_argument('--no-model', action='store_true',
                     help='skip the multivariate model R^2 step')
     args = ap.parse_args()
 
-    run(ratio_csv=args.ratio_csv, group=args.group, atlas=args.atlas,
-        n_spins=args.n_spins, n_jobs=args.n_jobs, out_dir=args.out_dir,
-        use_clr=args.use_clr, fdr_method=args.fdr_method,
-        do_model=not args.no_model)
+    if args.feature == 'meg' and not args.ratio_csv:
+        ap.error("--ratio-csv is required for --feature meg")
+
+    run(feature=args.feature, ratio_csv=args.ratio_csv, group=args.group,
+        atlas=args.atlas, n_spins=args.n_spins, n_jobs=args.n_jobs,
+        out_dir=args.out_dir, use_clr=args.use_clr, fdr_method=args.fdr_method,
+        do_model=not args.no_model, smooth=args.smooth)
 
 
 if __name__ == '__main__':
