@@ -37,7 +37,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from dataset import load_layer_data, load_mask, load_bigbrain_thickness, layer_names_roman, LAYER_KEYS
+from dataset import load_layer_data, load_mask, load_bigbrain_thickness, layer_names_roman
 from prep import clr_features
 from analysis import (parallel_cross_layer_correlation,
                       permutation_test_whole_match,
@@ -62,13 +62,14 @@ def branch_name(prop_mode, prop_order, use_clr, relative):
 def run_strategy(atlas, level, prop_mode, prop_order, n_spins, n_jobs,
                  seed, use_clr, relative, show_progress):
     """Run full pipeline for one strategy configuration."""
-    prop_mat, ctypes, regions, layers = load_layer_data(
+    prop_mat, ctypes, regions, _ = load_layer_data(
         atlas, level, return_ratio=True, prop_mode=prop_mode, prop_order=prop_order)
     count_arr, _, _, _ = load_layer_data(
         atlas, level, return_ratio=False, prop_mode=prop_mode, prop_order=prop_order)
     layer_CT, rel_CT = load_bigbrain_thickness(regions, atlas=atlas)
 
-    mask = load_mask(ctypes, layers=LAYER_KEYS)
+    layers = layer_names_roman
+    mask = load_mask(ctypes)
 
     np.random.seed(seed)
     spins = spin_data(data=layer_CT, atlas=atlas, n_spins=n_spins, return_ind=True)

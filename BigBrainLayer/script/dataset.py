@@ -55,8 +55,8 @@ def load_layer_data(atlas='BN', level='subclass', return_ratio=True,
         How to order normalize vs. relabel. Only meaningful for `by_region`.
         'after' (default) — relabel first (D99→atlas), then normalize in atlas space.
                             Current pipeline behaviour.
-        'before'          — normalize within each D99 region first, then relabel.
-                            The denominator is the D99 layer total, not the BN layer total.
+        'before'          — normalize within each D99 region first (denominator is the
+                            per-region total summed across D99 layers), then relabel.
 
     Returns
     -------
@@ -69,8 +69,11 @@ def load_layer_data(atlas='BN', level='subclass', return_ratio=True,
     if ctype_map is None:
         ctype_map = load_ctype_map(data_root)
 
-    # Pre-aggregate counts across layers (needed for by_region mode)
-    agg_counts = pd.DataFrame(0.0, index=raw_regions, columns=raw_ctypes)
+    # Pre-aggregate counts across layers (needed for by_region mode).
+    # Built lazily from the first layer's level-aggregated columns, since
+    # ctype_ratio_agg() remaps raw_ctypes -> level-aggregated labels (e.g.
+    # subclass), which don't match raw_ctypes.
+    agg_counts = None
     for l in range(len(layers)):
         data = pd.DataFrame(raw_arr[:, l, :], index=raw_regions, columns=raw_ctypes)
         if atlas != 'D99':
@@ -78,17 +81,30 @@ def load_layer_data(atlas='BN', level='subclass', return_ratio=True,
                                cross_species=True).round()
         data = ctype_ratio_agg(data, map_df=ctype_map, key=level)
         data = data.sort_index().fillna(0)
-        agg_counts += data
+        agg_counts = data.copy() if agg_counts is None else agg_counts.add(data, fill_value=0)
 
     data_list, region_names, ctype_names = [], None, None
     for l in range(len(layers)):
         data = pd.DataFrame(raw_arr[:, l, :], index=raw_regions, columns=raw_ctypes)
+
+        # prop_order='before': normalize in raw D99 space (by the D99 per-region
+        # layer total, summed across layers) *before* relabeling/aggregating,
+        # so the denominator is the D99 total, not the atlas-space total.
+        pre_normalize = (return_ratio and prop_mode == 'by_region'
+                        and prop_order == 'before')
+        if pre_normalize:
+            layer_total_d99 = pd.DataFrame(raw_arr.sum(axis=1),
+                                           index=raw_regions, columns=raw_ctypes)
+            data = data.div(layer_total_d99, axis=0)
+
         if atlas != 'D99':
             data = vol_relabel('D99', atlas, data, method='sum',
-                               cross_species=True).round()
+                               cross_species=True)
+            if not pre_normalize:
+                data = data.round()
         data = ctype_ratio_agg(data, map_df=ctype_map, key=level)
 
-        if return_ratio:
+        if return_ratio and not pre_normalize:
             if prop_mode == 'by_layer':
                 data = data.div(data.sum(axis=1), axis=0)
             elif prop_mode == 'by_region':
@@ -96,12 +112,7 @@ def load_layer_data(atlas='BN', level='subclass', return_ratio=True,
                     # Sum across layers first, then normalize per region (current)
                     layer_total = agg_counts.copy()
                     data = data.div(layer_total, axis=0)
-                elif prop_order == 'before':
-                    # Normalize each layer within D99 space first, then sum
-                    layer_total_d99 = pd.DataFrame(raw_arr.sum(axis=0),
-                                                   index=raw_regions, columns=raw_ctypes)
-                    data = data.div(layer_total_d99, axis=0)
-                else:
+                elif prop_order != 'before':
                     raise ValueError(f"Unknown prop_order: {prop_order}")
             else:
                 raise ValueError(f"Unknown prop_mode: {prop_mode}")
