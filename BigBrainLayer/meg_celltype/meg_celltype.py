@@ -18,17 +18,20 @@ Pipeline:
       -> (MEG only) z-score outlier mask (drop < -2 SD)
       -> optional CLR transform of the (region x cell-type) composition
       -> per (feature x cell-type) spin correlation     [univariate]
-      -> per-feature multivariate model R^2 + dominance  [multivariate]
+      -> per-feature multivariate model R^2 + importance [multivariate]
+           - dominance (exact Shapley, ≤12 features) or
+           - SHAP (LinearExplainer, fast for 23 features)
 
 Cell-type ratios are compositional, so CLR (`--use-clr`, default) is the primary
 branch and raw proportions (`--no-clr`) the sensitivity branch; the two write to
 distinct filenames. Multiple-comparison correction is applied ONCE across the
-whole band x cell-type grid (`--fdr-method`, default 'holm'), not per band.
+whole feature x cell-type grid (`--fdr-method`, default 'holm'), not per feature.
 
 Outputs (written to --out-dir):
     <feature>_celltype_<tag>.csv  per (feature x cell-type) spin r / p / p_adj
     hcps1200_meg_fgc.csv          MEG feature matrix (MEG runs only)
     model_r_<tag>.csv             per-feature multivariate adjusted R^2 + spin p
+    importance_<tag>.csv          per-cell-type relative importance (dominance/SHAP)
   where <tag> = <feature>_<group|all>_<clr|raw>.
 
 Usage:
@@ -52,6 +55,12 @@ from scipy.stats import zscore, pearsonr, gmean
 from statsmodels.stats.multitest import multipletests
 from joblib import Parallel, delayed
 from tqdm import tqdm
+
+try:
+    import shap
+    SHAP_AVAILABLE = True
+except ImportError:
+    SHAP_AVAILABLE = False
 
 # --- CellAlign dependencies (available in the dthbca_imgT env) ---------------
 from neuromaps.datasets import fetch_annotation
@@ -254,11 +263,20 @@ def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
 # ---------------------------------------------------------------------------
 def model_r_sq_per_band(data, ctype_ratio, atlas='BN', n_spins=1000,
                         method='Alexander-Bloch', model_type='linear',
-                        fdr_method='holm'):
+                        fdr_method='holm', importance_method='dominance'):
     """Multivariate adjusted R^2 (all cell types -> each band) with spin p.
 
-    Model p-values are corrected across the 6 bands with `fdr_method`.
+    Model p-values are corrected across all features with `fdr_method`.
+
+    importance_method: 'dominance' (exact, slow for >12 features) or 'shap'
+                       (Shapley approximation via LinearExplainer, fast).
     """
+    if importance_method == 'shap' and not SHAP_AVAILABLE:
+        raise ImportError("SHAP requested but not installed. Run: pip install shap")
+    if importance_method == 'dominance' and ctype_ratio.shape[1] > 12:
+        print(f"[WARNING] dominance with {ctype_ratio.shape[1]} features is slow "
+              f"(2^{ctype_ratio.shape[1]} subsets). Consider --importance-method shap")
+
     spinner = SpinTest(atlas=atlas, n_spins=n_spins, method=method)
     X = zscore(ctype_ratio.values, nan_policy='omit')
 
@@ -283,12 +301,39 @@ def dominance_per_band(data, ctype_ratio, band):
     return pd.Series(stats[0]['total_dominance'], index=ctype_ratio.columns)
 
 
+def shap_importance_per_band(data, ctype_ratio, band):
+    """Per-cell-type SHAP importance for one feature (relative contribution).
+
+    Uses LinearExplainer (fast, exact for linear models). Returns normalized
+    absolute SHAP values as relative importance (analogous to dominance analysis).
+    """
+    from sklearn.linear_model import LinearRegression
+    X = zscore(ctype_ratio.values, nan_policy='omit')
+    y = zscore(data[band].values, nan_policy='omit')
+
+    # Remove NaN rows (from zscore nan_policy='omit' or original data)
+    mask = ~(np.isnan(X).any(axis=1) | np.isnan(y))
+    X_clean, y_clean = X[mask], y[mask]
+
+    if len(X_clean) < 2:
+        return pd.Series(np.nan, index=ctype_ratio.columns)
+
+    model = LinearRegression().fit(X_clean, y_clean)
+    explainer = shap.LinearExplainer(model, X_clean)
+    shap_values = explainer.shap_values(X_clean)
+
+    # Mean absolute SHAP per feature, normalized to sum=1 (relative importance)
+    mean_abs_shap = np.abs(shap_values).mean(axis=0)
+    rel_importance = mean_abs_shap / mean_abs_shap.sum() if mean_abs_shap.sum() > 0 else mean_abs_shap
+    return pd.Series(rel_importance, index=ctype_ratio.columns)
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 def run(feature='meg', ratio_csv=None, group=None, atlas=None, n_spins=1000,
         n_jobs=-1, out_dir='.', use_clr=True, fdr_method='holm', do_model=True,
-        smooth=True):
+        smooth=True, importance_method='auto'):
     os.makedirs(out_dir, exist_ok=True)
 
     data, ctype_ratio, atlas = resolve_inputs(
@@ -299,6 +344,10 @@ def run(feature='meg', ratio_csv=None, group=None, atlas=None, n_spins=1000,
 
     if use_clr:
         ctype_ratio = clr_transform(ctype_ratio)
+
+    # Auto-select importance method: dominance for ≤12 features, shap for >12
+    if importance_method == 'auto':
+        importance_method = 'dominance' if ctype_ratio.shape[1] <= 12 else 'shap'
 
     # output tag keeps feature / group / raw-vs-CLR branches side by side
     tag = f"{feature}_{group or 'all'}_{'clr' if use_clr else 'raw'}"
@@ -312,9 +361,23 @@ def run(feature='meg', ratio_csv=None, group=None, atlas=None, n_spins=1000,
 
     if do_model:
         model = model_r_sq_per_band(data, ctype_ratio, atlas=atlas,
-                                    n_spins=n_spins, fdr_method=fdr_method)
+                                    n_spins=n_spins, fdr_method=fdr_method,
+                                    importance_method=importance_method)
         model.to_csv(os.path.join(out_dir, f'model_r_{tag}.csv'), index=False)
         print(f'[meg_celltype] {tag}: per-feature model R^2 -> model_r_{tag}.csv')
+
+        # Per-cell-type importance (dominance or SHAP)
+        print(f'[meg_celltype] {tag}: computing per-cell-type importance '
+              f'(method={importance_method})...')
+        importance_func = (dominance_per_band if importance_method == 'dominance'
+                          else shap_importance_per_band)
+        importance = pd.DataFrame({
+            band: importance_func(data, ctype_ratio, band)
+            for band in data.columns
+        }).T
+        importance.to_csv(os.path.join(out_dir, f'importance_{tag}.csv'))
+        print(f'[meg_celltype] {tag}: per-cell-type importance ({importance_method}) '
+              f'-> importance_{tag}.csv')
 
 
 def main():
@@ -349,6 +412,12 @@ def main():
                          '(needed where Connectome Workbench / wb_command is '
                          'unavailable); no effect for --feature meg')
     ap.set_defaults(smooth=True)
+    ap.add_argument('--importance-method', choices=['auto', 'dominance', 'shap'],
+                    default='auto',
+                    help="method for per-cell-type importance in multivariate model: "
+                         "'dominance' (exact Shapley, slow for >12 features), "
+                         "'shap' (fast LinearExplainer approximation), "
+                         "'auto' (dominance if ≤12 features else shap, default)")
     ap.add_argument('--no-model', action='store_true',
                     help='skip the multivariate model R^2 step')
     args = ap.parse_args()
@@ -356,7 +425,8 @@ def main():
     run(feature=args.feature, ratio_csv=args.ratio_csv, group=args.group,
         atlas=args.atlas, n_spins=args.n_spins, n_jobs=args.n_jobs,
         out_dir=args.out_dir, use_clr=args.use_clr, fdr_method=args.fdr_method,
-        do_model=not args.no_model, smooth=args.smooth)
+        do_model=not args.no_model, smooth=args.smooth,
+        importance_method=args.importance_method)
 
 
 if __name__ == '__main__':
