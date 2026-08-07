@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -68,6 +69,22 @@ def load_layer_data(atlas='BN', level='subclass', return_ratio=True,
     raw_arr, raw_ctypes, raw_regions, layers = load_raw_counts(data_root)
     if ctype_map is None:
         ctype_map = load_ctype_map(data_root)
+
+    # cluster_mapping_dict.csv doesn't cover every raw cluster present in the
+    # count data (e.g. rare PVALB/SST/VIP subtypes). ctype_ratio_agg() now
+    # raises on unmapped columns instead of silently dropping them, so drop
+    # them here explicitly and report what's excluded.
+    unmapped = [c for c in raw_ctypes if c not in ctype_map.index]
+    if unmapped:
+        warnings.warn(
+            f"{len(unmapped)}/{len(raw_ctypes)} raw cluster(s) have no "
+            f"'{level}' mapping in cluster_mapping_dict.csv and are excluded "
+            f"from aggregation: {unmapped[:10]}"
+            f"{'...' if len(unmapped) > 10 else ''}"
+        )
+        keep_idx = [i for i, c in enumerate(raw_ctypes) if c in ctype_map.index]
+        raw_arr = raw_arr[:, :, keep_idx]
+        raw_ctypes = [raw_ctypes[i] for i in keep_idx]
 
     # Pre-aggregate counts across layers (needed for by_region mode).
     # Built lazily from the first layer's level-aggregated columns, since
