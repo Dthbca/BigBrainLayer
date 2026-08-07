@@ -62,14 +62,22 @@ try:
 except ImportError:
     SHAP_AVAILABLE = False
 
-# --- CellAlign dependencies (available in the dthbca_imgT env) ---------------
+# --- CellAlign / HomoloMap dependencies (package was renamed CellAlign→HomoloMap) ---
 from neuromaps.datasets import fetch_annotation
-from CellAlign.transforms import load_data
-from CellAlign.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
-from CellAlign.parcellation import surf_relabel, parc_smooth
-from CellAlign.stats.nulls import SpinTest
-from CellAlign.stats import get_reg_r_sq, get_reg_r_pval
-from CellAlign.stats.analysis import get_dominance_stats
+try:
+    from CellAlign.transforms import load_data
+    from CellAlign.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
+    from CellAlign.parcellation import surf_relabel, parc_smooth
+    from CellAlign.stats.nulls import SpinTest
+    from CellAlign.stats import get_reg_r_sq, get_reg_r_pval
+    from CellAlign.stats.analysis import get_dominance_stats
+except ModuleNotFoundError:
+    from HomoloMap.transforms import load_data
+    from HomoloMap.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
+    from HomoloMap.parcellation import surf_relabel, parc_smooth
+    from HomoloMap.stats.nulls import SpinTest
+    from HomoloMap.stats import get_reg_r_sq, get_reg_r_pval
+    from HomoloMap.stats.analysis import get_dominance_stats
 
 
 # MEG bands published in HCP-S1200 (neuromaps `source='hcps1200'`).
