@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from CellAlign.spins import spin_data
+from HomoloMap.spins import spin_data
 
 from dataset import load_all, layer_names_roman
 from prep import clr_features

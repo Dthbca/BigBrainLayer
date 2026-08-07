@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from CellAlign.parcellation import vol_relabel
-from CellAlign.datasets.atlas import ctype_ratio_agg
+from HomoloMap.parcellation import vol_relabel
+from HomoloMap.datasets.atlas import ctype_ratio_agg
 
 LAYER_KEYS = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6']
 layer_names_roman = ['Layer I', 'Layer II', 'Layer III',

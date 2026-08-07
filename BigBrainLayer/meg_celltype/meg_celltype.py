@@ -1,6 +1,6 @@
 """Cortical feature-map ~ cell-type-ratio correlation (MEG + ENIGMA disorders).
 
-Organised from the exploratory notebook `CellAlign/spin_test.ipynb` (remote n03).
+Organised from the exploratory notebook `HomoloMap/spin_test.ipynb` (remote n03).
 Tests whether the cortical distribution of cell-type ratios (from spatial
 transcriptomics) couples with cortical feature maps, using spatial-
 autocorrelation-preserving spin nulls. Two feature families share one pipeline
@@ -45,6 +45,7 @@ Usage:
 Environment (remote n03):
     conda activate dthbca_imgT
     PYTHONPATH must include /data100/home/dthbca/project/CellAlign
+    (HomoloMap package lives at .../CellAlign/HomoloMap)
 """
 import argparse
 import os
@@ -62,14 +63,14 @@ try:
 except ImportError:
     SHAP_AVAILABLE = False
 
-# --- CellAlign dependencies (available in the dthbca_imgT env) ---------------
+# --- HomoloMap dependencies (available in the dthbca_imgT env) --------------
 from neuromaps.datasets import fetch_annotation
-from CellAlign.transforms import load_data
-from CellAlign.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
-from CellAlign.parcellation import surf_relabel, parc_smooth
-from CellAlign.stats.nulls import SpinTest
-from CellAlign.stats import get_reg_r_sq, get_reg_r_pval
-from CellAlign.stats.analysis import get_dominance_stats
+from HomoloMap.transforms import load_data
+from HomoloMap.datasets import fetch_enigma, fetch_ctype_ratio, fetch_fslr, fetch_parc
+from HomoloMap.parcellation import surf_relabel, parc_smooth
+from HomoloMap.stats.nulls import SpinTest
+from HomoloMap.stats import get_reg_r_sq, get_reg_r_pval
+from HomoloMap.stats.analysis import get_dominance_stats
 
 
 # MEG bands published in HCP-S1200 (neuromaps `source='hcps1200'`).

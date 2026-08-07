@@ -42,7 +42,7 @@ from prep import clr_features
 from analysis import (parallel_cross_layer_correlation,
                       permutation_test_whole_match,
                       permutation_test_exact_mismatch)
-from CellAlign.spins import spin_data
+from HomoloMap.spins import spin_data
 
 
 STRATEGY_AXES = {

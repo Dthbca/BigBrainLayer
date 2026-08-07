@@ -23,14 +23,14 @@ import matplotlib.patches as mpatches
 from matplotlib.colors import TwoSlopeNorm
 
 try:
-    from CellAlign.stats.analysis import (
+    from HomoloMap.stats.analysis import (
         get_dominance_stats,
         get_shap_stats,
         get_reg_r_sq
     )
-    CELLALIGN_AVAILABLE = True
+    HOMOLOMAP_AVAILABLE = True
 except ImportError:
-    CELLALIGN_AVAILABLE = False
+    HOMOLOMAP_AVAILABLE = False
 
 
 def _layer_dominance_worker(args):
@@ -116,10 +116,10 @@ def layer_dominance_analysis(
         Columns: layer, ctype, total_dominance, R2_full.
         One row per (layer, ctype) combination where ctype is present in that layer.
     """
-    if not CELLALIGN_AVAILABLE:
+    if not HOMOLOMAP_AVAILABLE:
         raise ImportError(
-            "CellAlign.stats.analysis is required. "
-            "Ensure CellAlign is installed and PYTHONPATH is set."
+            "HomoloMap.stats.analysis is required. "
+            "Ensure HomoloMap is installed and PYTHONPATH is set."
         )
 
     tasks = [
