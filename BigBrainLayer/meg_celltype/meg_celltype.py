@@ -227,11 +227,22 @@ def spin_correlation(data, ctype_ratio, atlas='BN', n_spins=1000,
         x = ctype_ratio[ctype].values
         y = data[band].values
         m = ~np.isnan(x) & ~np.isnan(y)
+        if m.sum() < 3:
+            return np.nan, np.nan
         r, _ = pearsonr(x[m], y[m])
         rotated = y[spins]                       # rotate full map, then mask per spin
-        r_null = np.array([pearsonr(x[m], rotated[m, i])[0]
-                           for i in range(rotated.shape[1])])
-        p_value = (1 + np.sum(np.abs(r_null) >= np.abs(r))) / (rotated.shape[1] + 1)
+        # A spin can rotate a NaN (MEG outlier mask) into a position the static
+        # mask `m` keeps, so drop NaNs pairwise for EACH null realisation.
+        r_null = np.empty(rotated.shape[1])
+        for i in range(rotated.shape[1]):
+            yi = rotated[:, i]
+            mi = ~np.isnan(x) & ~np.isnan(yi)
+            r_null[i] = pearsonr(x[mi], yi[mi])[0] if mi.sum() >= 3 else np.nan
+        valid = ~np.isnan(r_null)
+        n_valid = int(valid.sum())
+        if n_valid == 0:
+            return r, np.nan
+        p_value = (1 + np.sum(np.abs(r_null[valid]) >= np.abs(r))) / (n_valid + 1)
         return r, p_value
 
     bands = list(data.columns)
@@ -278,16 +289,34 @@ def model_r_sq_per_band(data, ctype_ratio, atlas='BN', n_spins=1000,
               f"(2^{ctype_ratio.shape[1]} subsets). Consider --importance-method shap")
 
     spinner = SpinTest(atlas=atlas, n_spins=n_spins, method=method)
+    spins = spinner.spins
     X = zscore(ctype_ratio.values, nan_policy='omit')
 
-    r_sq = np.zeros(len(data.columns))
-    pval = np.zeros(len(data.columns))
+    r_sq = np.full(len(data.columns), np.nan)
+    pval = np.full(len(data.columns), np.nan)
     for i, band in enumerate(data.columns):
         y = zscore(data.values[:, i], nan_policy='omit')
-        r_sq[i] = get_reg_r_sq(X, y, model_type=model_type)
-        pval[i] = get_reg_r_pval(X, y, spinner.spins, n_spins, model_type=model_type)
+        # `y` (and, defensively, X) can carry NaNs -- MEG outlier masking sets
+        # extreme-low regions to NaN. get_reg_r_sq -> sklearn rejects NaNs, so
+        # drop non-finite rows pairwise for the observed fit and, because the
+        # spin rotates NaNs into new positions, per null realisation too.
+        base = np.isfinite(X).all(axis=1) & np.isfinite(y)
+        if base.sum() < X.shape[1] + 2:
+            continue
+        r_sq[i] = get_reg_r_sq(X[base], y[base], model_type=model_type)
+        null = np.empty(spins.shape[1])
+        for k in range(spins.shape[1]):
+            yk = y[spins[:, k]]
+            mk = np.isfinite(X).all(axis=1) & np.isfinite(yk)
+            null[k] = (get_reg_r_sq(X[mk], yk[mk], model_type=model_type)
+                       if mk.sum() >= X.shape[1] + 2 else np.nan)
+        null = null[np.isfinite(null)]
+        if null.size:
+            pval[i] = (1 + np.sum(null >= r_sq[i])) / (null.size + 1)
 
-    pval_adj = multipletests(pval, method=fdr_method)[1]
+    finite = np.isfinite(pval)
+    pval_adj = np.full_like(pval, np.nan)
+    pval_adj[finite] = multipletests(pval[finite], method=fdr_method)[1]
     return pd.DataFrame({'feature': list(data.columns),
                          'model_r_sq': r_sq,
                          'model_pval': pval,
@@ -296,8 +325,10 @@ def model_r_sq_per_band(data, ctype_ratio, atlas='BN', n_spins=1000,
 
 def dominance_per_band(data, ctype_ratio, band):
     """Per-cell-type total dominance for one MEG band (relative importance)."""
-    stats = get_dominance_stats(zscore(ctype_ratio.values),
-                                zscore(data[band].values))
+    X = zscore(ctype_ratio.values, nan_policy='omit')
+    y = zscore(data[band].values, nan_policy='omit')
+    m = np.isfinite(X).all(axis=1) & np.isfinite(y)          # drop NaN regions
+    stats = get_dominance_stats(X[m], y[m])
     return pd.Series(stats[0]['total_dominance'], index=ctype_ratio.columns)
 
 
