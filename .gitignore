@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+
+results/tmp/*
+!results/tmp/.gitkeep
+results/figures/*
+!results/figures/.gitkeep
