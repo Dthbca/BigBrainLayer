@@ -1,0 +1,26 @@
+{
+  "structure": "aspect-preserved workflow + extra-wide heatmap + vertically stacked brain maps",
+  "reference_elements": [
+    "macaque",
+    "stereo",
+    "layers",
+    "ratios",
+    "homology",
+    "histology",
+    "brain"
+  ],
+  "old_reference_labels_excluded": true,
+  "brain_example": {
+    "layer": "Layer IV",
+    "ctype": "Pax6",
+    "r": 0.888900704,
+    "q": 0.007454084377
+  },
+  "exports": [
+    "png",
+    "svg",
+    "pdf",
+    "tiff"
+  ],
+  "backend": "Python/matplotlib"
+}

@@ -1,0 +1,33 @@
+{
+  "report": "D:\\HomoloMap\\reports\\homolomap_layer_branch_compare_20260812_060115\\output\\layer_pipeline_integrated_report_v10_permutation_corrected.html",
+  "bytes": 36343,
+  "images": 22,
+  "figcaptions": 22,
+  "missing_assets": [],
+  "missing_required": [],
+  "old_figure_paths_present": [],
+  "exports": {
+    "figure_permutation_corrected": {
+      "png": 74967,
+      "svg": 18689,
+      "pdf": 40813,
+      "tiff": 31300046,
+      "editable_text": true
+    },
+    "figure_permutation_sensitivity_corrected": {
+      "png": 57321,
+      "svg": 17834,
+      "pdf": 41639,
+      "tiff": 30794190,
+      "editable_text": true
+    },
+    "figure_draft_laminar_cell_thickness": {
+      "png": 194995,
+      "svg": 58954,
+      "pdf": 65328,
+      "tiff": 56669546,
+      "editable_text": true
+    }
+  },
+  "passed": true
+}

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "backend": "Python/matplotlib",
+  "standalone_figures": 6,
+  "formats": [
+    "svg",
+    "pdf",
+    "png",
+    "tiff"
+  ],
+  "heatmap_vlim": 0.9,
+  "colorbar_ticks": [
+    -0.9,
+    -0.6000000000000001,
+    -0.30000000000000004,
+    -1.1102230246251565e-16,
+    0.29999999999999993,
+    0.6,
+    0.9
+  ],
+  "n_tests": 97,
+  "n_sig": 31,
+  "finite": true
+}

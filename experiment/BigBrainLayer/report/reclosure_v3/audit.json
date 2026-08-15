@@ -1,0 +1,86 @@
+{
+  "mapping_unresolved": 35,
+  "relabel_dropped": {
+    "within_layer": {
+      "l1": [
+        106,
+        118,
+        194
+      ],
+      "l2": [
+        106,
+        118,
+        194
+      ],
+      "l3": [
+        106,
+        118,
+        194
+      ],
+      "l4": [
+        106,
+        118,
+        194
+      ],
+      "l5": [
+        106,
+        118,
+        194
+      ],
+      "l6": [
+        106,
+        118,
+        194
+      ]
+    },
+    "within_region_cross_layer": {
+      "l1": [
+        106,
+        118,
+        194
+      ],
+      "l2": [
+        106,
+        118,
+        194
+      ],
+      "l3": [
+        106,
+        118,
+        194
+      ],
+      "l4": [
+        106,
+        118,
+        194
+      ],
+      "l5": [
+        106,
+        118,
+        194
+      ],
+      "l6": [
+        106,
+        118,
+        194
+      ]
+    }
+  },
+  "closure": {
+    "within_layer": {
+      "full_composition": true,
+      "mask_used_for_tests_only": true,
+      "zero_denominators": 0,
+      "max_abs_closure_error": 6.661338147750939e-16,
+      "n_closed_vectors": 630
+    },
+    "within_region_cross_layer": {
+      "full_composition": true,
+      "mask_used_for_tests_only": true,
+      "zero_denominators": 0,
+      "max_abs_closure_error": 3.3306690738754696e-16,
+      "n_closed_vectors": 2415
+    }
+  },
+  "mask_present_pairs": 97
+}

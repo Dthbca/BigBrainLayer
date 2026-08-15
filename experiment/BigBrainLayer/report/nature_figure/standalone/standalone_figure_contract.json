@@ -1,0 +1,7 @@
+{
+  "backend": "python",
+  "figures": 4,
+  "data_rows": 776,
+  "titles_in_html": true,
+  "composite": false
+}

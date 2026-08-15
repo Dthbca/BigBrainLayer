@@ -1,0 +1,40 @@
+{
+  "report": "D:\\HomoloMap\\reports\\homolomap_layer_branch_compare_20260812_060115\\output\\layer_pipeline_advisor_review_v8_layer_shap_visual.html",
+  "images": 21,
+  "figcaptions": 21,
+  "missing_assets": [],
+  "uses_v2_figures": true,
+  "figures": {
+    "figure_layer_shap_performance_v2": {
+      "png_dimensions": [
+        2028,
+        967
+      ],
+      "png_bytes": 69269,
+      "svg_bytes": 12304,
+      "editable_text": true,
+      "all_exports": true
+    },
+    "figure_layer_shap_heatmap_v2": {
+      "png_dimensions": [
+        1803,
+        1026
+      ],
+      "png_bytes": 100083,
+      "svg_bytes": 27281,
+      "editable_text": true,
+      "all_exports": true
+    },
+    "figure_layer_shap_classes_v2": {
+      "png_dimensions": [
+        2014,
+        1036
+      ],
+      "png_bytes": 74171,
+      "svg_bytes": 16412,
+      "editable_text": true,
+      "all_exports": true
+    }
+  },
+  "passed": true
+}

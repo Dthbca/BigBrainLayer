@@ -1,0 +1,74 @@
+{
+  "model": "5-fold out-of-fold RidgeCV",
+  "explainer": "shap.LinearExplainer",
+  "random_state": 42,
+  "n_branches": 8,
+  "comparison_note": "Compare OOF performance and within-branch normalized SHAP shares; raw SHAP magnitudes differ by target scale.",
+  "mapping_unresolved": 35,
+  "dropped_labels": {
+    "within_layer": {
+      "l1": [
+        106,
+        118,
+        194
+      ],
+      "l2": [
+        106,
+        118,
+        194
+      ],
+      "l3": [
+        106,
+        118,
+        194
+      ],
+      "l4": [
+        106,
+        118,
+        194
+      ],
+      "l5": [
+        106,
+        118,
+        194
+      ],
+      "l6": [
+        106,
+        118,
+        194
+      ]
+    },
+    "within_region_cross_layer": {
+      "l1": [
+        106,
+        118,
+        194
+      ],
+      "l2": [
+        106,
+        118,
+        194
+      ],
+      "l3": [
+        106,
+        118,
+        194
+      ],
+      "l4": [
+        106,
+        118,
+        194
+      ],
+      "l5": [
+        106,
+        118,
+        194
+      ],
+      "l6": [
+        106,
+        118,
+        194
+      ]
+    }
+  }
+}

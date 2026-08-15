@@ -1,0 +1,7 @@
+normalization,strategy,finite,closure_median,closure_max_abs_error
+within_layer,ratio_then_mean_relabel,True,0.9999999999999983,0.9999759660696662
+within_layer,sum_relabel_then_ratio,True,1.0,6.661338147750939e-16
+within_layer,mean_relabel_then_ratio,True,1.0,6.661338147750939e-16
+within_region_cross_layer,ratio_then_mean_relabel,True,0.9999999999999998,0.35822001565574557
+within_region_cross_layer,sum_relabel_then_ratio,True,1.0,4.440892098500626e-16
+within_region_cross_layer,mean_relabel_then_ratio,True,1.0,4.440892098500626e-16

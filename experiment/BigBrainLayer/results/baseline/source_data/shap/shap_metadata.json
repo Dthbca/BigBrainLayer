@@ -1,0 +1,46 @@
+{
+  "branch": "within_region_cross_layer__clr_false__thickness_relative",
+  "model": "5-fold out-of-fold RidgeCV",
+  "explainer": "shap.LinearExplainer",
+  "aggregation": "mean absolute SHAP across held-out ROI, then mean across layers",
+  "n_roi": 105,
+  "n_cell_types": 23,
+  "mapping_unresolved": 35,
+  "dropped_labels": {
+    "l1": [
+      106,
+      118,
+      194
+    ],
+    "l2": [
+      106,
+      118,
+      194
+    ],
+    "l3": [
+      106,
+      118,
+      194
+    ],
+    "l4": [
+      106,
+      118,
+      194
+    ],
+    "l5": [
+      106,
+      118,
+      194
+    ],
+    "l6": [
+      106,
+      118,
+      194
+    ]
+  },
+  "mask": {
+    "kind": "external",
+    "threshold": null,
+    "semantics": "True=present"
+  }
+}

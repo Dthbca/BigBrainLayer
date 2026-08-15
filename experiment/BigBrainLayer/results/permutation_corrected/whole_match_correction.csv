@@ -1,0 +1,9 @@
+branch,observed_stat,n_exact,extreme_count,p_old_plus1,p_correct_exact
+within_region_cross_layer__clr_false__thickness_relative,0.4173890706389339,720,4,0.0069348127600554,0.005555555555555556
+within_region_cross_layer__clr_false__thickness_absolute,0.345704532666831,720,4,0.0069348127600554,0.005555555555555556
+within_layer__clr_true__thickness_absolute,-0.0789457357320392,720,458,0.636615811373093,0.6361111111111111
+within_layer__clr_true__thickness_relative,-0.0233921037947209,720,523,0.7267683772538142,0.7263888888888889
+within_region_cross_layer__clr_true__thickness_relative,-0.025727040446971,720,695,0.9653259361997226,0.9652777777777778
+within_layer__clr_false__thickness_relative,0.0686560245456623,720,95,0.1331484049930651,0.13194444444444445
+within_layer__clr_false__thickness_absolute,0.1170921828045614,720,92,0.1289875173370319,0.12777777777777777
+within_region_cross_layer__clr_true__thickness_absolute,-0.0214893408308891,720,700,0.972260748959778,0.9722222222222222

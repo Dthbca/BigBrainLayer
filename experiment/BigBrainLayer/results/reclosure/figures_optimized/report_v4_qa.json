@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "report": "layer_pipeline_reclosure_report_v4.html",
+  "bytes": 23237,
+  "sha256": "2970e948e6806d00b39145d10bce69b6cc569e2af4b7630a4309f8e30e324a0e",
+  "images": 18,
+  "links": 15,
+  "missing": [],
+  "optimized_png": [
+    {
+      "file": "figure_reclosure_effect_consistency_opt.png",
+      "size": [
+        1401,
+        1372
+      ],
+      "nonblank": true
+    },
+    {
+      "file": "figure_reclosure_inference_change_opt.png",
+      "size": [
+        2087,
+        1181
+      ],
+      "nonblank": true
+    },
+    {
+      "file": "figure_reclosure_branch_effects_opt.png",
+      "size": [
+        2087,
+        1192
+      ],
+      "nonblank": true
+    },
+    {
+      "file": "figure_reclosed_best_permutation_opt.png",
+      "size": [
+        1520,
+        966
+      ],
+      "nonblank": true
+    },
+    {
+      "file": "figure_reclosed_best_heatmap_opt.png",
+      "size": [
+        2113,
+        787
+      ],
+      "nonblank": true
+    },
+    {
+      "file": "figure_reclosed_shap_contribution_opt.png",
+      "size": [
+        1550,
+        1582
+      ],
+      "nonblank": true
+    }
+  ],
+  "formats": {
+    "figure_reclosure_branch_effects_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    },
+    "figure_reclosure_effect_consistency_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    },
+    "figure_reclosure_inference_change_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    },
+    "figure_reclosed_best_heatmap_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    },
+    "figure_reclosed_best_permutation_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    },
+    "figure_reclosed_shap_contribution_opt": {
+      "png": true,
+      "svg": true,
+      "pdf": true,
+      "tiff": true
+    }
+  },
+  "svg_editable_text": {
+    "figure_reclosure_branch_effects_opt": true,
+    "figure_reclosure_effect_consistency_opt": true,
+    "figure_reclosure_inference_change_opt": true,
+    "figure_reclosed_best_heatmap_opt": true,
+    "figure_reclosed_best_permutation_opt": true,
+    "figure_reclosed_shap_contribution_opt": true
+  },
+  "checks": {
+    "symmetric_colorbar": true,
+    "direction_labels": true,
+    "mask_gray": true,
+    "optimized_refs": true
+  }
+}

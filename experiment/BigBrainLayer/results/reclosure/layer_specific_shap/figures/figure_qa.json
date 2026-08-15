@@ -1,0 +1,17 @@
+{
+  "core_conclusion": "Layer-specific models reveal heterogeneous predictive contributions, with strongest OOF performance in Layers IV and VI.",
+  "backend": "Python/matplotlib",
+  "archetype": "three standalone quantitative figures",
+  "n_roi_per_layer": 105,
+  "figures": [
+    "figure_layer_shap_performance",
+    "figure_layer_shap_heatmap",
+    "figure_layer_shap_classes"
+  ],
+  "source_files": [
+    "layer_specific_model_performance.csv",
+    "layer_specific_shap_contributions.csv",
+    "layer_specific_shap_classes.csv"
+  ],
+  "note": "SHAP shares are normalized within layer; grey heatmap cells are mask-excluded, not zero contribution."
+}

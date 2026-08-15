@@ -1,0 +1,68 @@
+{
+  "report": "D:\\HomoloMap\\reports\\homolomap_layer_branch_compare_20260812_060115\\output\\layer_pipeline_advisor_review_v7_layer_shap.html",
+  "bytes": 33969,
+  "images": 21,
+  "figcaptions": 21,
+  "missing_assets": [],
+  "missing_required": [],
+  "exports": {
+    "figure_layer_shap_performance": {
+      "png": {
+        "exists": true,
+        "bytes": 89269
+      },
+      "svg": {
+        "exists": true,
+        "bytes": 10825
+      },
+      "pdf": {
+        "exists": true,
+        "bytes": 50951
+      },
+      "tiff": {
+        "exists": true,
+        "bytes": 33879062
+      },
+      "svg_editable_text": true
+    },
+    "figure_layer_shap_heatmap": {
+      "png": {
+        "exists": true,
+        "bytes": 126157
+      },
+      "svg": {
+        "exists": true,
+        "bytes": 27497
+      },
+      "pdf": {
+        "exists": true,
+        "bytes": 50206
+      },
+      "tiff": {
+        "exists": true,
+        "bytes": 33941726
+      },
+      "svg_editable_text": true
+    },
+    "figure_layer_shap_classes": {
+      "png": {
+        "exists": true,
+        "bytes": 73998
+      },
+      "svg": {
+        "exists": true,
+        "bytes": 16404
+      },
+      "pdf": {
+        "exists": true,
+        "bytes": 44619
+      },
+      "tiff": {
+        "exists": true,
+        "bytes": 36201746
+      },
+      "svg_editable_text": true
+    }
+  },
+  "passed": true
+}

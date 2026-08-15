@@ -1,0 +1,529 @@
+{
+  "status": "PASS",
+  "existing_run_reused": true,
+  "no_spin_rerun": true,
+  "package": "/share/user_data/dthbca/public/experiment/BigBrainLayer/staging/HomoloMap_20260811_001313",
+  "python": "/data100/home/dthbca/.conda/envs/dthbca_imgT/bin/python",
+  "branch_keys_expected": [
+    "within_layer__clr_false__thickness_absolute",
+    "within_layer__clr_false__thickness_relative",
+    "within_layer__clr_true__thickness_absolute",
+    "within_layer__clr_true__thickness_relative",
+    "within_region_cross_layer__clr_false__thickness_absolute",
+    "within_region_cross_layer__clr_false__thickness_relative",
+    "within_region_cross_layer__clr_true__thickness_absolute",
+    "within_region_cross_layer__clr_true__thickness_relative"
+  ],
+  "branch_keys_summary": [
+    "within_region_cross_layer__clr_false__thickness_relative",
+    "within_region_cross_layer__clr_false__thickness_absolute",
+    "within_layer__clr_true__thickness_absolute",
+    "within_layer__clr_true__thickness_relative",
+    "within_region_cross_layer__clr_true__thickness_relative",
+    "within_layer__clr_false__thickness_absolute",
+    "within_region_cross_layer__clr_true__thickness_absolute",
+    "within_layer__clr_false__thickness_relative"
+  ],
+  "branch_keys_match": true,
+  "per_branch_rows": {
+    "within_layer__clr_false__thickness_absolute": 97,
+    "within_layer__clr_false__thickness_relative": 97,
+    "within_layer__clr_true__thickness_absolute": 97,
+    "within_layer__clr_true__thickness_relative": 97,
+    "within_region_cross_layer__clr_false__thickness_absolute": 97,
+    "within_region_cross_layer__clr_false__thickness_relative": 97,
+    "within_region_cross_layer__clr_true__thickness_absolute": 97,
+    "within_region_cross_layer__clr_true__thickness_relative": 97
+  },
+  "all_branches_97_tests": true,
+  "long_rows": 776,
+  "long_expected": 776,
+  "raw_shapes": {
+    "l1": [
+      141,
+      23
+    ],
+    "l2": [
+      141,
+      23
+    ],
+    "l3": [
+      141,
+      23
+    ],
+    "l4": [
+      141,
+      23
+    ],
+    "l5": [
+      141,
+      23
+    ],
+    "l6": [
+      141,
+      23
+    ]
+  },
+  "within_layer_max_abs_error_positive_denominator": 4.440892098500626e-16,
+  "cross_layer_per_roi_ctype_max_abs_error_positive_denominator": 2.220446049250313e-16,
+  "normalization_invariants_pass": true,
+  "mapped_shapes_mean": {
+    "within_layer": {
+      "l1": [
+        105,
+        23
+      ],
+      "l2": [
+        105,
+        23
+      ],
+      "l3": [
+        105,
+        23
+      ],
+      "l4": [
+        105,
+        23
+      ],
+      "l5": [
+        105,
+        23
+      ],
+      "l6": [
+        105,
+        23
+      ]
+    },
+    "cross_layer": {
+      "l1": [
+        105,
+        23
+      ],
+      "l2": [
+        105,
+        23
+      ],
+      "l3": [
+        105,
+        23
+      ],
+      "l4": [
+        105,
+        23
+      ],
+      "l5": [
+        105,
+        23
+      ],
+      "l6": [
+        105,
+        23
+      ]
+    }
+  },
+  "mapped_finite": true,
+  "mapped_common_roi_exact": true,
+  "n_effective_roi": 105,
+  "n_celltypes": 23,
+  "bn_left_n_labels": 105,
+  "bn_left_labels_exact": true,
+  "d99_dropped_labels": {
+    "l1": [
+      106,
+      118,
+      194
+    ],
+    "l2": [
+      106,
+      118,
+      194
+    ],
+    "l3": [
+      106,
+      118,
+      194
+    ],
+    "l4": [
+      106,
+      118,
+      194
+    ],
+    "l5": [
+      106,
+      118,
+      194
+    ],
+    "l6": [
+      106,
+      118,
+      194
+    ]
+  },
+  "counts_sum_audit": {
+    "method": "sum",
+    "shapes": {
+      "l1": [
+        105,
+        23
+      ],
+      "l2": [
+        105,
+        23
+      ],
+      "l3": [
+        105,
+        23
+      ],
+      "l4": [
+        105,
+        23
+      ],
+      "l5": [
+        105,
+        23
+      ],
+      "l6": [
+        105,
+        23
+      ]
+    },
+    "finite": true
+  },
+  "thickness_absolute": {
+    "shape": [
+      105,
+      6
+    ],
+    "finite": true,
+    "row_sum_mean": 2.2509404097681194,
+    "relative_flag": false
+  },
+  "thickness_relative": {
+    "shape": [
+      105,
+      6
+    ],
+    "finite": true,
+    "row_sum_max_abs_error": 2.220446049250313e-16,
+    "relative_flag": true
+  },
+  "spin_parameters": {
+    "n_spins": 1000,
+    "seed": 42,
+    "spin_method": "Alexander-Bloch",
+    "n_jobs": 8,
+    "metric": "pearsonr",
+    "correction": "fdr_bh"
+  },
+  "spin_parameter_pass": true,
+  "summary_n_fdr_sig": {
+    "within_region_cross_layer__clr_false__thickness_relative": 31,
+    "within_region_cross_layer__clr_false__thickness_absolute": 21,
+    "within_layer__clr_true__thickness_absolute": 14,
+    "within_layer__clr_true__thickness_relative": 13,
+    "within_region_cross_layer__clr_true__thickness_relative": 11,
+    "within_layer__clr_false__thickness_absolute": 4,
+    "within_region_cross_layer__clr_true__thickness_absolute": 2,
+    "within_layer__clr_false__thickness_relative": 0
+  },
+  "summary_mean_abs_r": {
+    "within_region_cross_layer__clr_false__thickness_relative": 0.4582724280538525,
+    "within_region_cross_layer__clr_false__thickness_absolute": 0.4086322817802771,
+    "within_layer__clr_true__thickness_absolute": 0.357810093287641,
+    "within_layer__clr_true__thickness_relative": 0.2892333909482047,
+    "within_region_cross_layer__clr_true__thickness_relative": 0.2972735717260484,
+    "within_layer__clr_false__thickness_absolute": 0.3504998365228722,
+    "within_region_cross_layer__clr_true__thickness_absolute": 0.2783647181256682,
+    "within_layer__clr_false__thickness_relative": 0.2703787099511164
+  },
+  "summary_whole_match_p": {
+    "within_region_cross_layer__clr_false__thickness_relative": 0.0069348127600554,
+    "within_region_cross_layer__clr_false__thickness_absolute": 0.0069348127600554,
+    "within_layer__clr_true__thickness_absolute": 0.636615811373093,
+    "within_layer__clr_true__thickness_relative": 0.7267683772538142,
+    "within_region_cross_layer__clr_true__thickness_relative": 0.9583911234396671,
+    "within_layer__clr_false__thickness_absolute": 0.0624133148404993,
+    "within_region_cross_layer__clr_true__thickness_absolute": 0.970873786407767,
+    "within_layer__clr_false__thickness_relative": 0.0721220527045769
+  },
+  "branch_spearman_offdiag": {
+    "min": 0.0601199242583631,
+    "median": 0.44790790027351146,
+    "max": 0.880207237534189
+  },
+  "significant_jaccard_offdiag": {
+    "min": 0.0,
+    "median": 0.030330882352941152,
+    "max": 0.5757575757575758
+  },
+  "report_exists_nonempty": true,
+  "figures_required_complete": true,
+  "success_marker": true,
+  "failed_marker": false,
+  "files": [
+    {
+      "path": "SUCCESS",
+      "bytes": 19
+    },
+    {
+      "path": "audit.json",
+      "bytes": 2779
+    },
+    {
+      "path": "branch_summary.csv",
+      "bytes": 1891
+    },
+    {
+      "path": "figures/best_branch_layer_ctype.pdf",
+      "bytes": 23296
+    },
+    {
+      "path": "figures/best_branch_layer_ctype.png",
+      "bytes": 345764
+    },
+    {
+      "path": "figures/best_branch_layer_ctype.svg",
+      "bytes": 75914
+    },
+    {
+      "path": "figures/best_branch_layer_ctype.tiff",
+      "bytes": 66720146
+    },
+    {
+      "path": "figures/branch_layer_heatmap.pdf",
+      "bytes": 17574
+    },
+    {
+      "path": "figures/branch_layer_heatmap.png",
+      "bytes": 579772
+    },
+    {
+      "path": "figures/branch_layer_heatmap.svg",
+      "bytes": 73806
+    },
+    {
+      "path": "figures/branch_layer_heatmap.tiff",
+      "bytes": 55173366
+    },
+    {
+      "path": "figures/branch_spearman_matrix.pdf",
+      "bytes": 15657
+    },
+    {
+      "path": "figures/branch_spearman_matrix.png",
+      "bytes": 737282
+    },
+    {
+      "path": "figures/branch_spearman_matrix.svg",
+      "bytes": 82626
+    },
+    {
+      "path": "figures/branch_spearman_matrix.tiff",
+      "bytes": 82292942
+    },
+    {
+      "path": "figures/hero_branch_comparison.pdf",
+      "bytes": 15320
+    },
+    {
+      "path": "figures/hero_branch_comparison.png",
+      "bytes": 1380031
+    },
+    {
+      "path": "figures/hero_branch_comparison.svg",
+      "bytes": 141101
+    },
+    {
+      "path": "figures/hero_branch_comparison.tiff",
+      "bytes": 133887754
+    },
+    {
+      "path": "launch.sh",
+      "bytes": 448
+    },
+    {
+      "path": "parameters.json",
+      "bytes": 450
+    },
+    {
+      "path": "report_zh.md",
+      "bytes": 1422
+    },
+    {
+      "path": "run.log",
+      "bytes": 6011
+    },
+    {
+      "path": "runner.py",
+      "bytes": 11486
+    },
+    {
+      "path": "source_data/all_branch_mismatch_results.csv",
+      "bytes": 97494
+    },
+    {
+      "path": "source_data/all_branch_spin_results.csv",
+      "bytes": 96265
+    },
+    {
+      "path": "source_data/best_branch_p_matrix.csv",
+      "bytes": 2109
+    },
+    {
+      "path": "source_data/best_branch_r_matrix.csv",
+      "bytes": 2091
+    },
+    {
+      "path": "source_data/branch_layer_mean_abs_r.csv",
+      "bytes": 1355
+    },
+    {
+      "path": "source_data/branch_significant_jaccard.csv",
+      "bytes": 1447
+    },
+    {
+      "path": "source_data/branch_spearman_r.csv",
+      "bytes": 1921
+    },
+    {
+      "path": "source_data/present_mask.csv",
+      "bytes": 934
+    },
+    {
+      "path": "source_data/thickness_absolute.csv",
+      "bytes": 12593
+    },
+    {
+      "path": "source_data/thickness_relative.csv",
+      "bytes": 12871
+    },
+    {
+      "path": "source_data/within_layer__clr_false__thickness_absolute__whole_null.csv",
+      "bytes": 14628
+    },
+    {
+      "path": "source_data/within_layer__clr_false__thickness_relative__whole_null.csv",
+      "bytes": 14803
+    },
+    {
+      "path": "source_data/within_layer__clr_true__thickness_absolute__whole_null.csv",
+      "bytes": 15139
+    },
+    {
+      "path": "source_data/within_layer__clr_true__thickness_relative__whole_null.csv",
+      "bytes": 15436
+    },
+    {
+      "path": "source_data/within_region_cross_layer__clr_false__thickness_absolute__whole_null.csv",
+      "bytes": 14771
+    },
+    {
+      "path": "source_data/within_region_cross_layer__clr_false__thickness_relative__whole_null.csv",
+      "bytes": 14705
+    },
+    {
+      "path": "source_data/within_region_cross_layer__clr_true__thickness_absolute__whole_null.csv",
+      "bytes": 15178
+    },
+    {
+      "path": "source_data/within_region_cross_layer__clr_true__thickness_relative__whole_null.csv",
+      "bytes": 15261
+    },
+    {
+      "path": "within_layer__clr_false__thickness_absolute.csv",
+      "bytes": 11531
+    },
+    {
+      "path": "within_layer__clr_false__thickness_absolute__mismatch.csv",
+      "bytes": 11859
+    },
+    {
+      "path": "within_layer__clr_false__thickness_absolute__top.csv",
+      "bytes": 2147
+    },
+    {
+      "path": "within_layer__clr_false__thickness_relative.csv",
+      "bytes": 11502
+    },
+    {
+      "path": "within_layer__clr_false__thickness_relative__mismatch.csv",
+      "bytes": 11831
+    },
+    {
+      "path": "within_layer__clr_false__thickness_relative__top.csv",
+      "bytes": 2138
+    },
+    {
+      "path": "within_layer__clr_true__thickness_absolute.csv",
+      "bytes": 11443
+    },
+    {
+      "path": "within_layer__clr_true__thickness_absolute__mismatch.csv",
+      "bytes": 11289
+    },
+    {
+      "path": "within_layer__clr_true__thickness_absolute__top.csv",
+      "bytes": 2133
+    },
+    {
+      "path": "within_layer__clr_true__thickness_relative.csv",
+      "bytes": 11429
+    },
+    {
+      "path": "within_layer__clr_true__thickness_relative__mismatch.csv",
+      "bytes": 11356
+    },
+    {
+      "path": "within_layer__clr_true__thickness_relative__top.csv",
+      "bytes": 2124
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_absolute.csv",
+      "bytes": 12767
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_absolute__mismatch.csv",
+      "bytes": 13274
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_absolute__top.csv",
+      "bytes": 2322
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_relative.csv",
+      "bytes": 12785
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_relative__mismatch.csv",
+      "bytes": 13121
+    },
+    {
+      "path": "within_region_cross_layer__clr_false__thickness_relative__top.csv",
+      "bytes": 2312
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_absolute.csv",
+      "bytes": 12510
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_absolute__mismatch.csv",
+      "bytes": 12642
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_absolute__top.csv",
+      "bytes": 2324
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_relative.csv",
+      "bytes": 12718
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_relative__mismatch.csv",
+      "bytes": 12584
+    },
+    {
+      "path": "within_region_cross_layer__clr_true__thickness_relative__top.csv",
+      "bytes": 2317
+    }
+  ]
+}

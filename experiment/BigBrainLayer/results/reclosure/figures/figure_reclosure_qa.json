@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "backend": "Python/matplotlib",
+  "figures": 3,
+  "formats": [
+    "png",
+    "svg",
+    "pdf",
+    "tiff"
+  ],
+  "n_branches": 8,
+  "n_pair_rows": 776,
+  "finite": true,
+  "source_data": "reclosure_comparison_source.csv"
+}

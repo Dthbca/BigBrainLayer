@@ -1,0 +1,277 @@
+normalization,layer_label,ctype,included
+within_layer,Layer I,Astro,True
+within_layer,Layer I,Chandelier,False
+within_layer,Layer I,Endo,True
+within_layer,Layer I,L2/3 IT,False
+within_layer,Layer I,L4 IT,False
+within_layer,Layer I,L5 ET,False
+within_layer,Layer I,L5 IT,False
+within_layer,Layer I,L5/6 NP,False
+within_layer,Layer I,L6 CT,False
+within_layer,Layer I,L6 IT,False
+within_layer,Layer I,L6 IT Car3,False
+within_layer,Layer I,L6b,False
+within_layer,Layer I,Lamp5,True
+within_layer,Layer I,Lamp5_Lhx6,False
+within_layer,Layer I,Micro-PVM,True
+within_layer,Layer I,OPC,True
+within_layer,Layer I,Oligo,False
+within_layer,Layer I,Pax6,True
+within_layer,Layer I,Pvalb,False
+within_layer,Layer I,Sncg,True
+within_layer,Layer I,Sst,False
+within_layer,Layer I,VLMC,True
+within_layer,Layer I,Vip,False
+within_layer,Layer II,Astro,True
+within_layer,Layer II,Chandelier,True
+within_layer,Layer II,Endo,True
+within_layer,Layer II,L2/3 IT,True
+within_layer,Layer II,L4 IT,False
+within_layer,Layer II,L5 ET,False
+within_layer,Layer II,L5 IT,False
+within_layer,Layer II,L5/6 NP,False
+within_layer,Layer II,L6 CT,False
+within_layer,Layer II,L6 IT,False
+within_layer,Layer II,L6 IT Car3,False
+within_layer,Layer II,L6b,False
+within_layer,Layer II,Lamp5,True
+within_layer,Layer II,Lamp5_Lhx6,True
+within_layer,Layer II,Micro-PVM,True
+within_layer,Layer II,OPC,True
+within_layer,Layer II,Oligo,False
+within_layer,Layer II,Pax6,True
+within_layer,Layer II,Pvalb,True
+within_layer,Layer II,Sncg,True
+within_layer,Layer II,Sst,True
+within_layer,Layer II,VLMC,False
+within_layer,Layer II,Vip,True
+within_layer,Layer III,Astro,True
+within_layer,Layer III,Chandelier,True
+within_layer,Layer III,Endo,True
+within_layer,Layer III,L2/3 IT,True
+within_layer,Layer III,L4 IT,True
+within_layer,Layer III,L5 ET,True
+within_layer,Layer III,L5 IT,True
+within_layer,Layer III,L5/6 NP,True
+within_layer,Layer III,L6 CT,True
+within_layer,Layer III,L6 IT,True
+within_layer,Layer III,L6 IT Car3,True
+within_layer,Layer III,L6b,True
+within_layer,Layer III,Lamp5,True
+within_layer,Layer III,Lamp5_Lhx6,True
+within_layer,Layer III,Micro-PVM,True
+within_layer,Layer III,OPC,True
+within_layer,Layer III,Oligo,True
+within_layer,Layer III,Pax6,True
+within_layer,Layer III,Pvalb,True
+within_layer,Layer III,Sncg,True
+within_layer,Layer III,Sst,True
+within_layer,Layer III,VLMC,False
+within_layer,Layer III,Vip,True
+within_layer,Layer IV,Astro,True
+within_layer,Layer IV,Chandelier,True
+within_layer,Layer IV,Endo,True
+within_layer,Layer IV,L2/3 IT,True
+within_layer,Layer IV,L4 IT,True
+within_layer,Layer IV,L5 ET,True
+within_layer,Layer IV,L5 IT,True
+within_layer,Layer IV,L5/6 NP,True
+within_layer,Layer IV,L6 CT,False
+within_layer,Layer IV,L6 IT,False
+within_layer,Layer IV,L6 IT Car3,False
+within_layer,Layer IV,L6b,False
+within_layer,Layer IV,Lamp5,True
+within_layer,Layer IV,Lamp5_Lhx6,True
+within_layer,Layer IV,Micro-PVM,True
+within_layer,Layer IV,OPC,True
+within_layer,Layer IV,Oligo,True
+within_layer,Layer IV,Pax6,True
+within_layer,Layer IV,Pvalb,True
+within_layer,Layer IV,Sncg,True
+within_layer,Layer IV,Sst,True
+within_layer,Layer IV,VLMC,False
+within_layer,Layer IV,Vip,True
+within_layer,Layer V,Astro,True
+within_layer,Layer V,Chandelier,True
+within_layer,Layer V,Endo,True
+within_layer,Layer V,L2/3 IT,False
+within_layer,Layer V,L4 IT,True
+within_layer,Layer V,L5 ET,True
+within_layer,Layer V,L5 IT,True
+within_layer,Layer V,L5/6 NP,True
+within_layer,Layer V,L6 CT,True
+within_layer,Layer V,L6 IT,True
+within_layer,Layer V,L6 IT Car3,True
+within_layer,Layer V,L6b,True
+within_layer,Layer V,Lamp5,True
+within_layer,Layer V,Lamp5_Lhx6,True
+within_layer,Layer V,Micro-PVM,True
+within_layer,Layer V,OPC,True
+within_layer,Layer V,Oligo,True
+within_layer,Layer V,Pax6,False
+within_layer,Layer V,Pvalb,True
+within_layer,Layer V,Sncg,False
+within_layer,Layer V,Sst,True
+within_layer,Layer V,VLMC,False
+within_layer,Layer V,Vip,True
+within_layer,Layer VI,Astro,True
+within_layer,Layer VI,Chandelier,True
+within_layer,Layer VI,Endo,True
+within_layer,Layer VI,L2/3 IT,False
+within_layer,Layer VI,L4 IT,False
+within_layer,Layer VI,L5 ET,True
+within_layer,Layer VI,L5 IT,True
+within_layer,Layer VI,L5/6 NP,True
+within_layer,Layer VI,L6 CT,True
+within_layer,Layer VI,L6 IT,True
+within_layer,Layer VI,L6 IT Car3,True
+within_layer,Layer VI,L6b,True
+within_layer,Layer VI,Lamp5,True
+within_layer,Layer VI,Lamp5_Lhx6,True
+within_layer,Layer VI,Micro-PVM,True
+within_layer,Layer VI,OPC,True
+within_layer,Layer VI,Oligo,True
+within_layer,Layer VI,Pax6,False
+within_layer,Layer VI,Pvalb,True
+within_layer,Layer VI,Sncg,False
+within_layer,Layer VI,Sst,True
+within_layer,Layer VI,VLMC,False
+within_layer,Layer VI,Vip,False
+within_region_cross_layer,Layer I,Astro,True
+within_region_cross_layer,Layer I,Chandelier,False
+within_region_cross_layer,Layer I,Endo,True
+within_region_cross_layer,Layer I,L2/3 IT,False
+within_region_cross_layer,Layer I,L4 IT,False
+within_region_cross_layer,Layer I,L5 ET,False
+within_region_cross_layer,Layer I,L5 IT,False
+within_region_cross_layer,Layer I,L5/6 NP,False
+within_region_cross_layer,Layer I,L6 CT,False
+within_region_cross_layer,Layer I,L6 IT,False
+within_region_cross_layer,Layer I,L6 IT Car3,False
+within_region_cross_layer,Layer I,L6b,False
+within_region_cross_layer,Layer I,Lamp5,True
+within_region_cross_layer,Layer I,Lamp5_Lhx6,False
+within_region_cross_layer,Layer I,Micro-PVM,True
+within_region_cross_layer,Layer I,OPC,True
+within_region_cross_layer,Layer I,Oligo,False
+within_region_cross_layer,Layer I,Pax6,True
+within_region_cross_layer,Layer I,Pvalb,False
+within_region_cross_layer,Layer I,Sncg,True
+within_region_cross_layer,Layer I,Sst,False
+within_region_cross_layer,Layer I,VLMC,True
+within_region_cross_layer,Layer I,Vip,False
+within_region_cross_layer,Layer II,Astro,True
+within_region_cross_layer,Layer II,Chandelier,True
+within_region_cross_layer,Layer II,Endo,True
+within_region_cross_layer,Layer II,L2/3 IT,True
+within_region_cross_layer,Layer II,L4 IT,False
+within_region_cross_layer,Layer II,L5 ET,False
+within_region_cross_layer,Layer II,L5 IT,False
+within_region_cross_layer,Layer II,L5/6 NP,False
+within_region_cross_layer,Layer II,L6 CT,False
+within_region_cross_layer,Layer II,L6 IT,False
+within_region_cross_layer,Layer II,L6 IT Car3,False
+within_region_cross_layer,Layer II,L6b,False
+within_region_cross_layer,Layer II,Lamp5,True
+within_region_cross_layer,Layer II,Lamp5_Lhx6,True
+within_region_cross_layer,Layer II,Micro-PVM,True
+within_region_cross_layer,Layer II,OPC,True
+within_region_cross_layer,Layer II,Oligo,False
+within_region_cross_layer,Layer II,Pax6,True
+within_region_cross_layer,Layer II,Pvalb,True
+within_region_cross_layer,Layer II,Sncg,True
+within_region_cross_layer,Layer II,Sst,True
+within_region_cross_layer,Layer II,VLMC,False
+within_region_cross_layer,Layer II,Vip,True
+within_region_cross_layer,Layer III,Astro,True
+within_region_cross_layer,Layer III,Chandelier,True
+within_region_cross_layer,Layer III,Endo,True
+within_region_cross_layer,Layer III,L2/3 IT,True
+within_region_cross_layer,Layer III,L4 IT,True
+within_region_cross_layer,Layer III,L5 ET,True
+within_region_cross_layer,Layer III,L5 IT,True
+within_region_cross_layer,Layer III,L5/6 NP,True
+within_region_cross_layer,Layer III,L6 CT,True
+within_region_cross_layer,Layer III,L6 IT,True
+within_region_cross_layer,Layer III,L6 IT Car3,True
+within_region_cross_layer,Layer III,L6b,True
+within_region_cross_layer,Layer III,Lamp5,True
+within_region_cross_layer,Layer III,Lamp5_Lhx6,True
+within_region_cross_layer,Layer III,Micro-PVM,True
+within_region_cross_layer,Layer III,OPC,True
+within_region_cross_layer,Layer III,Oligo,True
+within_region_cross_layer,Layer III,Pax6,True
+within_region_cross_layer,Layer III,Pvalb,True
+within_region_cross_layer,Layer III,Sncg,True
+within_region_cross_layer,Layer III,Sst,True
+within_region_cross_layer,Layer III,VLMC,False
+within_region_cross_layer,Layer III,Vip,True
+within_region_cross_layer,Layer IV,Astro,True
+within_region_cross_layer,Layer IV,Chandelier,True
+within_region_cross_layer,Layer IV,Endo,True
+within_region_cross_layer,Layer IV,L2/3 IT,True
+within_region_cross_layer,Layer IV,L4 IT,True
+within_region_cross_layer,Layer IV,L5 ET,True
+within_region_cross_layer,Layer IV,L5 IT,True
+within_region_cross_layer,Layer IV,L5/6 NP,True
+within_region_cross_layer,Layer IV,L6 CT,False
+within_region_cross_layer,Layer IV,L6 IT,False
+within_region_cross_layer,Layer IV,L6 IT Car3,False
+within_region_cross_layer,Layer IV,L6b,False
+within_region_cross_layer,Layer IV,Lamp5,True
+within_region_cross_layer,Layer IV,Lamp5_Lhx6,True
+within_region_cross_layer,Layer IV,Micro-PVM,True
+within_region_cross_layer,Layer IV,OPC,True
+within_region_cross_layer,Layer IV,Oligo,True
+within_region_cross_layer,Layer IV,Pax6,True
+within_region_cross_layer,Layer IV,Pvalb,True
+within_region_cross_layer,Layer IV,Sncg,True
+within_region_cross_layer,Layer IV,Sst,True
+within_region_cross_layer,Layer IV,VLMC,False
+within_region_cross_layer,Layer IV,Vip,True
+within_region_cross_layer,Layer V,Astro,True
+within_region_cross_layer,Layer V,Chandelier,True
+within_region_cross_layer,Layer V,Endo,True
+within_region_cross_layer,Layer V,L2/3 IT,False
+within_region_cross_layer,Layer V,L4 IT,True
+within_region_cross_layer,Layer V,L5 ET,True
+within_region_cross_layer,Layer V,L5 IT,True
+within_region_cross_layer,Layer V,L5/6 NP,True
+within_region_cross_layer,Layer V,L6 CT,True
+within_region_cross_layer,Layer V,L6 IT,True
+within_region_cross_layer,Layer V,L6 IT Car3,True
+within_region_cross_layer,Layer V,L6b,True
+within_region_cross_layer,Layer V,Lamp5,True
+within_region_cross_layer,Layer V,Lamp5_Lhx6,True
+within_region_cross_layer,Layer V,Micro-PVM,True
+within_region_cross_layer,Layer V,OPC,True
+within_region_cross_layer,Layer V,Oligo,True
+within_region_cross_layer,Layer V,Pax6,False
+within_region_cross_layer,Layer V,Pvalb,True
+within_region_cross_layer,Layer V,Sncg,False
+within_region_cross_layer,Layer V,Sst,True
+within_region_cross_layer,Layer V,VLMC,False
+within_region_cross_layer,Layer V,Vip,True
+within_region_cross_layer,Layer VI,Astro,True
+within_region_cross_layer,Layer VI,Chandelier,True
+within_region_cross_layer,Layer VI,Endo,True
+within_region_cross_layer,Layer VI,L2/3 IT,False
+within_region_cross_layer,Layer VI,L4 IT,False
+within_region_cross_layer,Layer VI,L5 ET,True
+within_region_cross_layer,Layer VI,L5 IT,True
+within_region_cross_layer,Layer VI,L5/6 NP,True
+within_region_cross_layer,Layer VI,L6 CT,True
+within_region_cross_layer,Layer VI,L6 IT,True
+within_region_cross_layer,Layer VI,L6 IT Car3,True
+within_region_cross_layer,Layer VI,L6b,True
+within_region_cross_layer,Layer VI,Lamp5,True
+within_region_cross_layer,Layer VI,Lamp5_Lhx6,True
+within_region_cross_layer,Layer VI,Micro-PVM,True
+within_region_cross_layer,Layer VI,OPC,True
+within_region_cross_layer,Layer VI,Oligo,True
+within_region_cross_layer,Layer VI,Pax6,False
+within_region_cross_layer,Layer VI,Pvalb,True
+within_region_cross_layer,Layer VI,Sncg,False
+within_region_cross_layer,Layer VI,Sst,True
+within_region_cross_layer,Layer VI,VLMC,False
+within_region_cross_layer,Layer VI,Vip,False

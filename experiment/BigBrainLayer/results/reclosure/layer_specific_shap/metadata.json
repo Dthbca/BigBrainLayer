@@ -1,0 +1,52 @@
+{
+  "pipeline": "within-region cross-layer -> BN mean relabel -> full-composition reclosure -> no CLR -> relative thickness",
+  "model": "per-layer 5-fold OOF RidgeCV",
+  "explainer": "shap.LinearExplainer",
+  "random_state": 42,
+  "alphas": "logspace(-3,3,25)",
+  "n_roi": 105,
+  "n_mapped_subclasses": 23,
+  "mapping_unresolved": 35,
+  "closure_audit": {
+    "max_abs_closure_error": 3.3306690738754696e-16,
+    "denominator": "all 23 mapped subclasses"
+  },
+  "dropped_labels": {
+    "l1": [
+      106,
+      118,
+      194
+    ],
+    "l2": [
+      106,
+      118,
+      194
+    ],
+    "l3": [
+      106,
+      118,
+      194
+    ],
+    "l4": [
+      106,
+      118,
+      194
+    ],
+    "l5": [
+      106,
+      118,
+      194
+    ],
+    "l6": [
+      106,
+      118,
+      194
+    ]
+  },
+  "mask": {
+    "kind": "external",
+    "threshold": null,
+    "semantics": "True=present"
+  },
+  "feature_audit": "{'l1': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Endo', 'Lamp5', 'Micro-PVM', 'OPC', 'Pax6', 'Sncg', 'VLMC'], 'transformed_features': ['Astro', 'Endo', 'Lamp5', 'Micro-PVM', 'OPC', 'Pax6', 'Sncg', 'VLMC'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}, 'l2': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'transformed_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}, 'l3': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'transformed_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}, 'l4': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'transformed_features': ['Astro', 'Chandelier', 'Endo', 'L2/3 IT', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pax6', 'Pvalb', 'Sncg', 'Sst', 'Vip'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}, 'l5': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Chandelier', 'Endo', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pvalb', 'Sst', 'Vip'], 'transformed_features': ['Astro', 'Chandelier', 'Endo', 'L4 IT', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pvalb', 'Sst', 'Vip'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}, 'l6': {'method': 'none', 'zero_method': None, 'zero_fraction': None, 'closed': False, 'min_mapping_coverage': None, 'original_features': ['Astro', 'Chandelier', 'Endo', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pvalb', 'Sst'], 'transformed_features': ['Astro', 'Chandelier', 'Endo', 'L5 ET', 'L5 IT', 'L5/6 NP', 'L6 CT', 'L6 IT', 'L6 IT Car3', 'L6b', 'Lamp5', 'Lamp5_Lhx6', 'Micro-PVM', 'OPC', 'Oligo', 'Pvalb', 'Sst'], 'invalid_rows_policy': 'drop', 'dropped_rows': []}}"
+}

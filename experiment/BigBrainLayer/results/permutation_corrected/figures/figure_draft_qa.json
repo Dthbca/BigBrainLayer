@@ -1,0 +1,21 @@
+{
+  "core_conclusion": "Homologous laminar cell composition shows layer-specific spatial alignment with cortical thickness.",
+  "exact_test": {
+    "observed": 0.4173890706389339,
+    "extreme": 4,
+    "n": 720,
+    "p": 0.0055555555555555
+  },
+  "panels": {
+    "a": "97 mask-eligible layer-cell associations with spin-FDR stars",
+    "b": "all 720 exact layer assignments",
+    "c": "six independent 5-fold OOF RidgeCV models"
+  },
+  "backend": "Python/matplotlib",
+  "exports": [
+    "png",
+    "svg",
+    "pdf",
+    "tiff"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "report": "layer_pipeline_reclosure_report_v3.html",
+  "bytes": 23335,
+  "sha256": "e02ec4c79c227acdc17074dd91cbc4d5cafada73e475475c4eea5b86e8ad0245",
+  "images": 19,
+  "links": 15,
+  "missing": [],
+  "key_checks": {
+    "31/97": true,
+    "0.4576": true,
+    "0.006935": true,
+    "0.9997": true,
+    "Jaccard=1.00": true,
+    "0.5207": true,
+    "Chandelier": true,
+    "完整目标组成": true,
+    "mask仅在闭合完成后": true
+  }
+}

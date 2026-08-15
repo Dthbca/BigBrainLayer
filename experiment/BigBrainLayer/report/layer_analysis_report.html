@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HomoloMap：目标空间闭合的跨物种细胞组成揭示 BigBrain 层厚度关联</title>
+<style>
+:root{--ink:#15202b;--muted:#596775;--blue:#245a73;--teal:#3f8065;--red:#a94f48;--paper:#fff;--wash:#eef2f4;--line:#d5dee4;--soft:#f7f9fa}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:15px/1.72 Arial,"Microsoft YaHei",sans-serif}main{max-width:1160px;margin:auto;background:var(--paper);padding:48px 58px;box-shadow:0 4px 28px #18304418}
+h1{font-size:30px;line-height:1.25;margin:0 0 8px}h2{margin:42px 0 16px;padding-bottom:7px;border-bottom:2px solid var(--blue);font-size:21px}h3{margin-top:28px;color:var(--blue);font-size:17px}.sub,.muted{color:var(--muted)}
+.hero{margin:26px 0;padding:20px 24px;border-left:6px solid var(--teal);background:linear-gradient(135deg,#eaf3f8,#edf6f1)}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{padding:14px;border:1px solid var(--line);border-radius:8px;background:#fbfcfd}.metric b{display:block;color:var(--blue);font-size:23px}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0}.flow span{padding:9px 12px;border:1px solid #9fb8c8;border-radius:7px;background:#f8fbfd}.flow i{font-style:normal;color:var(--teal);font-weight:bold}
+figure{margin:28px 0}figure img{display:block;width:100%;height:auto;border:1px solid var(--line)}figcaption{margin-top:8px;color:var(--muted);font-size:13px}.brain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.brain-grid figure{margin:8px 0}.brain-grid figcaption{text-align:center}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 8px;border:1px solid var(--line);vertical-align:top}th{background:#eaf1f5;text-align:left}.best{background:#e8f4ed;font-weight:600}.alt{background:#fff8e8}.scroll{overflow-x:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{padding:15px 18px;border:1px solid var(--line);border-radius:8px;background:var(--soft)}.note,.warning{padding:14px 17px;margin:16px 0}.note{border:1px solid #d8cda8;background:#fffbed}.warning{border-left:5px solid var(--red);background:#fff3f1}.claim{border-left:4px solid var(--blue);padding-left:14px}
+code{font-size:12px}a{color:var(--blue)}ul{padding-left:22px}@media(max-width:800px){main{padding:24px}.metrics,.two,.brain-grid{grid-template-columns:1fr}}@media print{body{background:#fff}main{max-width:none;padding:10mm;box-shadow:none}figure,.panel{break-inside:avoid}h2{break-after:avoid}a{color:#000;text-decoration:none}}
+</style>
+<style>
+.advisor{background:#f5f8fb;border-left:5px solid #2b6f8a;padding:18px 22px;margin:22px 0}
+.glossary{font-size:.94rem}.glossary td:first-child{font-weight:700;white-space:nowrap}
+.toc a{color:#215c75;text-decoration:none}.toc li{margin:.35rem 0}
+.evidence{border-left:5px solid #8a6d2b;background:#fffaf0;padding:16px 20px;margin:20px 0}
+.plain{color:#34454d;font-size:.96rem}
+</style>
+</head><body><main><section id="repository-integration"><h2>代码、结果与复现目录</h2><p>本报告对应的层分析已经整理到仓库中的 <code>experiment/BigBrainLayer</code>。该目录将分析程序、关键数值结果、投稿图和报告放在同一处，便于在不依赖本次交互环境的情况下审阅和复现。</p><ul><li><b>code/</b>：八分支比较、重新闭合、空间旋转检验、精确层序置换、分层解释和绘图程序；<code>package_snapshot/</code>保存本次分析实际依赖的层数据、组成变换和统计模块快照。</li><li><b>results/baseline/</b>：原始八分支比较及审计；<b>results/reclosure/</b>：重标记后重新闭合作为主分析的结果；<b>results/permutation_corrected/</b>：精确层序置换及修正后的统计表。</li><li><b>figures/</b>：本文结果段候选图的PNG、SVG和PDF版本；<b>report/</b>：本综合报告及全部本地依赖。</li></ul><p>主分析采用跨层归一化、脑区重标记后重新闭合、不进行中心化对数比变换、相对层厚度、1,000次空间旋转和全部720种层序排列。主分支在97个mask允许的层–细胞类型组合中得到31个空间旋转后显著结果；整体层序匹配精确检验为4/720，p=0.005556。未重新闭合的连续特征结果保留为敏感性分析。</p><p><a href="../README.md">实验目录说明</a> · <a href="../code/run_reclosure_layer_branches.py">主分析程序</a> · <a href="../results/reclosure/branch_summary.csv">主分析分支汇总</a> · <a href="../results/permutation_corrected/whole_match_correction.csv">精确置换结果</a> · <a href="../figures/figure_draft_v6_wide_heatmap.svg">可编辑投稿图</a></p></section>
+<header><h1>跨物种细胞组成与人脑皮层分层厚度的空间关联</h1>
+    <p class="sub">HomoloMap跨物种映射 · Brainnetome 105个皮层区域 · 主分析、敏感性分析与可解释预测</p></header>
+    <section class="advisor"><h2 id="summary">审阅摘要</h2>
+    <p><b>研究目的：</b>检验猕猴空间转录组所描述的细胞类型空间分布，经转录同源关系和脑区空间映射后，是否与人脑BigBrain六个皮层层次的厚度分布存在系统关联。</p>
+    <p><b>主分析：</b>先在猕猴D99空间中按“同一细胞类型跨六层”的比例归一化，再映射到人脑Brainnetome（BN）图谱；映射后重新闭合比例；不进行中心化对数比变换（CLR）；厚度使用每个脑区内六层相对厚度。</p>
+    <p><b>主要发现：</b>在外部生物学mask保留的97个“层–细胞类型”组合中，31个关联通过分支内Benjamini–Hochberg假发现率校正（q&lt;0.05）；平均绝对相关系数为0.4576。六层标签的精确置换检验显示正确层序对应显著优于错配（720种排列，p=0.005556）。</p>
+    <p><b>稳健性：</b>relabel后闭合与未闭合连续特征的效应高度一致（Pearson r=0.9997；Spearman ρ=0.9997；显著集合Jaccard=1.00），但闭合版本具有更明确的成分数据解释，因此作为主结果。</p>
+    <p><b>结论边界：</b>结果支持空间共变与层特异对应，不证明细胞类型导致皮层厚度变化。ROI是空间单元，不是独立受试者。</p></section>
+    <nav class="advisor toc"><h2>报告结构</h2><ol>
+    <li><a href="#method-detail">数据与方法细节</a>：跨物种映射、归一化与目标空间重新闭合。</li>
+    <li><a href="#branch-reading">八分支比较</a>：三个分析选择及其交互。</li>
+    <li><a href="#interpretation">生物学解释与限制</a>：统计关联、预测贡献及结论边界。</li></ol></nav>
+    
+
+<section class="hero"><b>更新后的核心结论。</b>以“D99来源空间归一化 → BN mean relabel → BN目标空间reclosure”为主分析后，跨层、无CLR、相对厚度仍为八分支最优：31/97项FDR-BH显著，mean |r|=0.4576，正确层序whole-match p=0.005556。其与未闭合连续特征敏感性结果的效应相关为Pearson r=0.9997、Spearman ρ=0.9997，显著集合Jaccard=1.00；OOF R²由0.5225轻微变为0.5207，首要SHAP贡献仍为Chandelier。目标空间闭合赋予特征严格组成含义，同时保留了主要空间、置换和预测证据。</section>
+<div class="metrics"><div class="metric"><b>105</b>BN ROI</div><div class="metric"><b>23</b>同源 subclass</div><div class="metric"><b>97</b>mask 后层×细胞类型检验</div><div class="metric"><b>1,000</b>Alexander–Bloch spins</div></div>
+
+<h2>1. 研究问题与证据链</h2>
+<p>本分析检验：由猕猴层空间转录组估计并映射到人脑的细胞类型空间分布，是否与 BigBrain 六层厚度呈层特异的空间对应。证据链依次包括特征构建顺序验证、八个 preprocessing 分支的公平比较、空间旋转检验、六层标签精确置换，以及留出 ROI 的预测与 SHAP 贡献分解。</p>
+<div class="flow"><span>猕猴 D99 layer counts</span><i>→</i><span>同源 subclass 映射</span><i>→</i><span>组成归一化</span><i>→</i><span>D99→BN 连续特征映射</span><i>→</i><span>可选 CLR</span><i>→</i><span>绝对/相对 BigBrain 厚度</span><i>→</i><span>spin + FDR + 层置换 + SHAP</span></div>
+<p class="claim"><b>一句话论点：</b>与层内细胞类型平衡相比，同一细胞类型在六层间的相对分配更能解释人脑层厚度的空间组织，但这一关联依赖特征构建顺序、跨物种映射和外部层存在 mask，不构成细胞类型对层厚度的因果证明。</p>
+
+<section><h2 id="method-detail">数据对象与分析流程（详细说明）</h2>
+<h3>数据来源与分析单位</h3><p>细胞组成来自猕猴空间转录组。原始226个细胞类型中，191个具有可用的转录同源映射，35个未解析类型被记录并排除，最终聚合为23个细胞亚类。人脑表型来自BigBrain六层组织学厚度；两类数据对齐至Brainnetome图谱的105个皮层区域。</p>
+<h3>为什么先归一化、再relabel、再reclosure</h3><p>“within-layer”回答同一皮层层内不同细胞类型如何构成；“within-region cross-layer”回答给定细胞类型在同一脑区六层之间如何分配。主问题关注细胞类型的层间配置，因此选择后者。空间relabel是加权汇总，会因源区覆盖度和权重使总和偏离1，所以映射后必须再次reclosure。该步骤恢复成分解释，同时不改变组分间的相对关系。映射审计发现D99标签106、118和194没有目标对应，报告中持续保留这一atlas覆盖风险。</p>
+<h3>为什么主分析不用CLR</h3><p>CLR适合分析“一个封闭组成内部各成分相对于几何均值的变化”。但跨层归一化后，研究对象已是每个细胞类型在六层中的分配；随后按单层对23个细胞类型做CLR，会把问题改写成层内细胞类型平衡。八分支结果显示这种改写在主设置下减少显著发现，因此主分析保留原比例，CLR作为敏感性分支。</p>
+<h3>厚度的两种表达</h3><p>绝对厚度保留脑区总体尺度差异；相对厚度把每个ROI的六层厚度除以总皮层厚度，聚焦层间构成。相对厚度与跨层细胞分配在统计对象上更直接对应，因此在有整体层序证据且局部关联更强时被选为主分析。</p>
+<h3>空间相关、FDR与整体置换</h3><p>每个生物学mask保留的层–细胞类型组合在105个皮层区域上计算Pearson相关，并以1,000次Alexander–Bloch皮层旋转构建空间零分布，获得双侧p值。每个分析分支内部对97个有效组合执行Benjamini–Hochberg校正；八个分支之间不再进行第二层校正，因此跨分支差异用于评价方法敏感性，而不作为八次独立验证。整体层序检验枚举六层的6!=720种排列，以所有有效组合的平均相关作为统计量，采用单侧greater检验；由于完整枚举已包含观测identity，精确p值按极端排列数除以720计算。</p>
+<h3>预测与SHAP优势分析</h3><p>预测模型采用五折交叉验证的岭回归，每个脑区的预测均由未包含该脑区的训练数据产生。标准化只在各训练折拟合，避免测试信息泄漏；正则化强度在10<sup>−3</sup>至10<sup>3</sup>的25个候选值中选择。随后以SHAP值汇总23个细胞类型的绝对预测贡献，并进一步聚合至兴奋性、抑制性和非神经元类别。该结果反映模型对各类特征的依赖程度，不能单独作为生物学因果证据。</p></section><h2>2. 前置验证：归一化与 relabel 的顺序</h2>
+<p>比较三种特征构建策略：D99 中先计算 ratio 再以 mean 映射至 BN；counts 先以 sum 映射至 BN 再计算 ratio；counts 先以 mean 映射至 BN 再计算 ratio。统计比较只纳入外部结构性 mask 标记为存在的97个 layer–cell-type pairs，41个 mask=False 组合在相关计算前排除。</p>
+<figure><img src="nature_figure/standalone/figure_feature_strategy_validation.png" alt="三种特征构建策略的空间一致性"><figcaption><b>图1｜特征构建顺序的真实数据验证。</b>跨层方向的三组中位空间相关为0.965–0.983；层内方向总体中位数仍高，但“先 ratio”与两种“先 relabel”流程均有17项低于r=0.85，并出现Layer IV负相关离群值。</figcaption></figure>
+<div class="scroll"><table><thead><tr><th>归一化方向</th><th>策略比较</th><th>n</th><th>minimum r</th><th>5%分位</th><th>median r</th><th>mean r</th><th>r&lt;0.85</th></tr></thead><tbody>
+<tr><td>跨层</td><td>ratio→mean vs sum→ratio</td><td>97</td><td>0.715</td><td>0.893</td><td>0.983</td><td>0.966</td><td>4</td></tr>
+<tr><td>跨层</td><td>ratio→mean vs mean→ratio</td><td>97</td><td>0.739</td><td>0.885</td><td>0.972</td><td>0.959</td><td>4</td></tr>
+<tr><td>跨层</td><td>sum→ratio vs mean→ratio</td><td>97</td><td>0.798</td><td>0.886</td><td>0.965</td><td>0.953</td><td>1</td></tr>
+<tr><td>层内</td><td>ratio→mean vs sum→ratio</td><td>97</td><td>−0.329</td><td>−0.158</td><td>0.975</td><td>0.820</td><td>17</td></tr>
+<tr><td>层内</td><td>ratio→mean vs mean→ratio</td><td>97</td><td>−0.321</td><td>−0.169</td><td>0.959</td><td>0.811</td><td>17</td></tr>
+<tr><td>层内</td><td>sum→ratio vs mean→ratio</td><td>97</td><td>0.845</td><td>0.899</td><td>0.954</td><td>0.949</td><td>1</td></tr>
+</tbody></table></div>
+
+<h3>代表性空间图</h3>
+<p>以下各图使用HomoloMap绘图接口，以Surfplot将105个BN ROI映射至fsLR inflated surface。同一案例共享色标，未平滑、未插补。</p>
+<div class="brain-grid">
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_cross_layer_l6_endo_ratio_then_mean_relabel.png" alt="Layer VI Endo ratio 后 mean relabel"><figcaption>图2A｜Layer VI–Endo：ratio→mean。</figcaption></figure>
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_cross_layer_l6_endo_sum_relabel_then_ratio.png" alt="Layer VI Endo sum relabel 后 ratio"><figcaption>图2B｜Layer VI–Endo：sum→ratio。</figcaption></figure>
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_cross_layer_l6_endo_mean_relabel_then_ratio.png" alt="Layer VI Endo mean relabel 后 ratio"><figcaption>图2C｜Layer VI–Endo：mean→ratio。</figcaption></figure>
+</div><p class="muted">Layer VI–Endo 是跨层方向最低一致性案例：ratio→mean 与后两者的 r 分别为0.715和0.739，两个 relabel 后归一化流程之间为0.880。</p>
+<div class="brain-grid">
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_within_layer_l4_lamp5_ratio_then_mean_relabel.png" alt="Layer IV Lamp5 ratio 后 mean relabel"><figcaption>图3A｜Layer IV–Lamp5：ratio→mean。</figcaption></figure>
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_within_layer_l4_lamp5_sum_relabel_then_ratio.png" alt="Layer IV Lamp5 sum relabel 后 ratio"><figcaption>图3B｜Layer IV–Lamp5：sum→ratio。</figcaption></figure>
+<figure><img src="nature_figure/feature_strategy_brains/figure_brain_within_layer_l4_lamp5_mean_relabel_then_ratio.png" alt="Layer IV Lamp5 mean relabel 后 ratio"><figcaption>图3C｜Layer IV–Lamp5：mean→ratio。</figcaption></figure>
+</div><p class="muted">Layer IV–Lamp5 是层内方向最敏感案例：ratio→mean 与后两者呈负相关（r=−0.329、−0.321），而两个 relabel 后归一化流程高度一致（r=0.948）。</p>
+<div class="warning"><b>主分析定义。</b>relabel后在完整目标组成上重新闭合：层内分支对每个BN ROI×layer的23个subclass闭合；跨层分支对每个BN ROI×subclass的六层闭合。外部laminar mask仅在闭合完成后筛选97个统计检验，不参与组成分母。两种方向均无零分母，最大闭合误差分别为6.66×10<sup>−16</sup>和3.33×10<sup>−16</sup>。原未闭合结果保留为连续特征敏感性分析。</div>
+
+<h2>3. 八分支设计与统计方法</h2>
+<p>固定D99来源空间归一化后以mean进行D99→BN连续特征映射，比较两种归一化方向（层内、同一细胞类型跨层）、CLR开关和厚度尺度（绝对、相对），共8个分支。所有分支共享23个subclass、105个ROI、97个mask后检验、seed=42及同一组1,000次Alexander–Bloch空间旋转。</p>
+<div class="two"><div class="panel"><h3>局部空间检验</h3><p>每个有效layer–cell-type pair计算Pearson r及spin p值。随后在该分支全部97个有效p值上一次性执行Benjamini–Hochberg校正，阈值q&lt;0.05。未对8个pipeline之间再做第二层多重校正。</p></div><div class="panel"><h3>整体层序检验</h3><p>枚举六层标签的6!=720种排列，以全部有效关联的平均r作为统计量，检验正确层对应是否位于单侧零分布右尾。经验p采用(extreme+1)/(n+1)。identity排列在720种精确枚举中只计数一次。</p></div></div>
+<p>此外，五折留出ROI的RidgeCV评估空间外推预测；SHAP仅描述模型预测中的特征贡献，不是显著性检验，也不支持因果解释。</p>
+
+<h3>3.1 目标空间reclosure与未闭合连续特征的一致性</h3>
+<p>reclosure在完整组成上执行，mask只控制统计检验。跨层四个分支的闭合前后效应Pearson相关均≥0.9996，FDR显著集合Jaccard均为1.00；主要变化集中在层内无CLR分支。层内+无CLR+相对厚度由0项增加至8项FDR发现，但整体层序仍不显著（p=0.131944），因此没有取代跨层主分支。</p>
+<figure><img src="reclosure_v3/figures_optimized/figure_reclosure_effect_consistency_opt.png" alt="776项层细胞类型效应的闭合前后一致性"><figcaption><b>闭合比较图R1｜逐pair效应一致性。</b>每点为一个分支中的mask后layer–cell-type关联；虚线为完全一致线。</figcaption></figure>
+<figure><img src="reclosure_v3/figures_optimized/figure_reclosure_inference_change_opt.png" alt="八分支整体层序检验的闭合前后变化"><figcaption><b>闭合比较图R2｜整体层序推断变化。</b>横轴为whole-match p的−log10变换，J为闭合前后显著集合Jaccard。</figcaption></figure>
+<div class="scroll"><table><thead><tr><th>分支</th><th>效应Pearson r</th><th>效应Spearman ρ</th><th>显著集合Jaccard</th><th>FDR数：未闭合→闭合</th><th>mean |r|：未闭合→闭合</th><th>whole p：未闭合→闭合</th></tr></thead><tbody><tr class="best"><td>跨层 / 无CLR / 相对</td><td>0.9997</td><td>0.9997</td><td>1.00</td><td>31→31</td><td>0.4583→0.4576</td><td>0.005556→0.005556</td></tr><tr class=""><td>跨层 / 无CLR / 绝对</td><td>0.9999</td><td>0.9999</td><td>1.00</td><td>21→21</td><td>0.4086→0.4085</td><td>0.005556→0.005556</td></tr><tr class=""><td>层内 / CLR / 绝对</td><td>1.0000</td><td>1.0000</td><td>1.00</td><td>14→14</td><td>0.3578→0.3578</td><td>0.636111→0.636111</td></tr><tr class=""><td>层内 / CLR / 相对</td><td>1.0000</td><td>1.0000</td><td>1.00</td><td>13→13</td><td>0.2892→0.2892</td><td>0.726389→0.726389</td></tr><tr class=""><td>跨层 / CLR / 相对</td><td>0.9996</td><td>0.9991</td><td>1.00</td><td>11→11</td><td>0.2973→0.2971</td><td>0.958333→0.965278</td></tr><tr class=""><td>层内 / 无CLR / 相对</td><td>0.8310</td><td>0.8090</td><td>0.00</td><td>0→8</td><td>0.2704→0.2764</td><td>0.070833→0.131944</td></tr><tr class=""><td>层内 / 无CLR / 绝对</td><td>0.8227</td><td>0.8368</td><td>1.00</td><td>4→4</td><td>0.3505→0.3422</td><td>0.061111→0.127778</td></tr><tr class=""><td>跨层 / CLR / 绝对</td><td>0.9998</td><td>0.9995</td><td>1.00</td><td>2→2</td><td>0.2784→0.2788</td><td>0.970833→0.972222</td></tr></tbody></table></div>
+<h3>3.2 精确置换实现审计与校正</h3>
+<div class="panel"><p><b>whole-match校正。</b>六层标签共有6!=720种完整排列，观测identity已经包含其中。原实现仍使用Monte Carlo抽样所需的“+1”估计，等于把观测排列重复计数一次。校正后采用 <code>extreme / 720</code>；主分支有4个排列达到或超过观测统计量，因此p由5/721=0.006935改为4/720=0.005556，整体层序结论保持显著。</p>
+<p><b>mismatch校正。</b>原实现为每个层–细胞类型组合枚举600个错配排列，但单个组合实际只有5个不同的目标层，每个目标被重复120次。校正后使用5个唯一错层相关，加上观测匹配构成6个等权指派，精确p为<code>(1+k)/6</code>。其最小可能p为1/6，因此原报告中的pair级mismatch FDR发现不成立；八个分支校正后均为0项。该变化不影响基于1,000次空间spin的97项局部关联，也不影响whole-match整体层序证据。</p></div>
+<div class="scroll"><table><thead><tr><th>分支</th><th>原whole p</th><th>校正whole p</th><th>原mismatch FDR</th><th>校正mismatch FDR</th></tr></thead><tbody>
+<tr class="best"><td>跨层 / 无CLR / 相对</td><td>0.006935</td><td>0.005556</td><td>38</td><td>0</td></tr>
+<tr><td>跨层 / 无CLR / 绝对</td><td>0.006935</td><td>0.005556</td><td>37</td><td>0</td></tr>
+<tr><td>层内 / CLR / 绝对</td><td>0.636616</td><td>0.636111</td><td>16</td><td>0</td></tr>
+<tr><td>其余五个分支</td><td>结论均不显著</td><td>结论均不显著</td><td>12–18</td><td>0</td></tr>
+</tbody></table></div><h2>4. 八分支结果：reclosure主分析</h2><div class="advisor" id="branch-reading"><h3>八分支表格的阅读方法</h3>
+<p>八个分支来自三个二元选择：①层内归一化或同一细胞类型跨层归一化；②使用或不使用CLR；③绝对或相对厚度。<b>n FDR</b>表示97项局部检验中q&lt;0.05的数量；<b>mean |r|</b>描述典型效应强度但不区分方向；<b>whole p</b>检验整体正确层序是否优于错配。不能只按显著数量选模型：最终选择同时考虑研究问题匹配、整体置换证据、效应强度、闭合合理性和预测稳定性。</p></div>
+<figure><img src="reclosure_v3/figures_optimized/figure_reclosure_branch_effects_opt.png" alt="八种pipeline总体比较"><figcaption><b>图4｜reclosure八分支的效应与FDR发现。</b>蓝点为目标空间闭合主分析，空心灰点为未闭合连续特征敏感性结果；连线显示同一分支变化，右侧数字为FDR显著数“未闭合→闭合”。</figcaption></figure>
+<div class="scroll"><table><thead><tr><th>归一化</th><th>CLR</th><th>厚度</th><th>FDR q&lt;.05</th><th>mean |r|</th><th>median |r|</th><th>whole stat</th><th>whole p</th><th>六层平均OOF R²</th><th>六层平均SHAP首位</th></tr></thead><tbody><tr class="best"><td>跨层</td><td>否</td><td>relative</td><td>31</td><td>0.4576</td><td>0.4485</td><td>0.4174</td><td>0.005556</td><td>0.521</td><td>Chandelier</td></tr><tr class=""><td>跨层</td><td>否</td><td>absolute</td><td>21</td><td>0.4085</td><td>0.4265</td><td>0.3457</td><td>0.005556</td><td>0.608</td><td>L6b</td></tr><tr class="alt"><td>层内</td><td>是</td><td>absolute</td><td>14</td><td>0.3578</td><td>0.3590</td><td>-0.0789</td><td>0.636111</td><td>0.618</td><td>L5/6 NP</td></tr><tr class=""><td>层内</td><td>是</td><td>relative</td><td>13</td><td>0.2892</td><td>0.2324</td><td>-0.0234</td><td>0.726389</td><td>0.540</td><td>L5/6 NP</td></tr><tr class=""><td>跨层</td><td>是</td><td>relative</td><td>11</td><td>0.2971</td><td>0.2812</td><td>-0.0257</td><td>0.965278</td><td>0.513</td><td>L5 IT</td></tr><tr class=""><td>层内</td><td>否</td><td>relative</td><td>8</td><td>0.2764</td><td>0.2254</td><td>0.0687</td><td>0.131944</td><td>0.558</td><td>L5 ET</td></tr><tr class=""><td>层内</td><td>否</td><td>absolute</td><td>4</td><td>0.3422</td><td>0.3481</td><td>0.1171</td><td>0.127778</td><td>0.596</td><td>Pvalb</td></tr><tr class=""><td>跨层</td><td>是</td><td>absolute</td><td>2</td><td>0.2788</td><td>0.2607</td><td>-0.0215</td><td>0.972222</td><td>0.598</td><td>L6b</td></tr></tbody></table></div>
+
+<figure><img src="permutation_corrected_v10/figures/figure_permutation_corrected.png" alt="最佳分支整体层序置换"><figcaption><b>图5｜reclosure主分支的整体层序精确置换。</b>灰蓝直方图为720种层标签排列，暖色竖线为正确层对应的观测统计量0.4174；单侧经验p=0.005556。</figcaption></figure>
+<figure><img src="nature_figure/standalone/figure_shap_branch_comparison.png" alt="八分支预测与SHAP比较"><figcaption><b>图6｜八分支的六层平均预测表现与空间推断并不等价。</b>最高平均OOF R²来自层内+CLR+绝对厚度，但其whole-match不显著；reclosure最终分支R²为0.521，却具有最强空间关联及正确层序证据。</figcaption></figure>
+
+<h2>5. 最终 pipeline 的选择与解释</h2>
+<div class="two"><div class="panel"><h3>跨层归一化</h3><p>研究对象是给定细胞类型在六层之间的分配。跨层归一化与六层相对厚度在统计对象上直接对应；平均来看，跨层分支比层内分支增加8.5个FDR发现，mean |r|提高0.0437，但优势主要由无CLR条件驱动。</p></div><div class="panel"><h3>不使用CLR</h3><p>跨层归一化后，再对每层细胞类型做CLR会把问题改写为层内细胞类型对数比平衡。在相对厚度条件下，CLR使FDR发现从31降至11，mean |r|从0.4576降至0.2971；这支持保留原跨层分配特征。</p></div></div>
+<div class="panel"><h3>相对厚度</h3><p>相对厚度去除ROI总厚度尺度，突出六层内部厚度构成。在跨层、无CLR条件下，相对厚度较绝对厚度增加10项FDR发现，mean |r|提高0.0491；两者的整体层序检验均为p=0.005556，说明相对化增强局部效应但不是整体层序证据的唯一来源。</p></div>
+<figure><img src="reclosure_v3/figures_optimized/figure_reclosed_best_heatmap_opt.png" alt="最终分支层与细胞类型关联热图"><figcaption><b>图7｜reclosure主分支的层×细胞类型空间关联。</b>发散色标以0为中心并按实际数据对称设为−0.9至0.9；红色表示正相关，蓝色表示负相关，浅灰表示mask排除组合。星号为97项spin p值经FDR-BH校正后显著。</figcaption></figure>
+<figure><img src="nature_figure/standalone/figure_layer_effect_profile.png" alt="六层平均关联强度"><figcaption><b>图8｜六层平均关联强度。</b>不同预处理分支改变了效应的层级轮廓，提示结论对特征几何和厚度尺度具有真实敏感性。</figcaption></figure>
+
+<h3>SHAP整体贡献</h3>
+<figure><img src="reclosure_v3/figures_optimized/figure_reclosed_shap_contribution_opt.png" alt="最终分支SHAP整体贡献"><figcaption><b>图9｜reclosure主分支的细胞类型SHAP贡献。</b>颜色固定编码兴奋性、抑制性和非神经元类别；仅较高贡献条显示数值，减少文字拥挤。</figcaption></figure>
+<p>贡献分散表明预测不是由单一细胞类型支配。Chandelier、L6 CT、L5/6 NP、Pax6和Lamp5_Lhx6构成前五，但这些数值仅表示在当前相关特征与Ridge模型中的预测分摊；相关特征间的共享信息可改变SHAP排序，因此不应将其解释为独立生物效应大小。</p>
+<h3>分层SHAP：贡献来源具有明显的层特异性</h3>
+<p>上述总体贡献不是将六层堆叠为一个预测任务，而是分别在L1–L6训练六个模型，再对各层SHAP贡献取平均。为避免平均值掩盖层差异，本次进一步保留每层的折外预测、细胞类型贡献和细胞大类贡献。每层均使用105个Brainnetome脑区、五折out-of-fold RidgeCV及训练折内标准化；完整23类组成在relabel后重新闭合，外部mask只决定该层进入模型的细胞类型。</p>
+<figure><img src="reclosure_v3/layer_specific_shap/figures_v2/figure_layer_shap_performance_v2.png" alt="六层独立模型的折外预测性能"><figcaption><b>分层SHAP图1｜各层独立模型的折外预测性能。</b>L4与L6表现最强（OOF R²分别为0.784和0.724），L3、L5居中，L1和L2较弱。每个条形右侧标出该层贡献最高的细胞类型。模型泛化能力较弱的层，其SHAP排名不宜过度解释。</figcaption></figure>
+<figure><img src="reclosure_v3/layer_specific_shap/figures_v2/figure_layer_shap_heatmap_v2.png" alt="六层细胞类型相对SHAP贡献热图"><figcaption><b>分层SHAP图2｜层×细胞类型的相对预测贡献。</b>每行在该层内部归一化为100%，空心圆标示首要贡献；灰格表示被外部层mask排除，并非贡献为零。首要特征依次为L1 Sncg、L2 Pax6、L3 Pvalb、L4 Oligo、L5 Chandelier和L6 Micro-PVM。总体Chandelier排名主要由特定层驱动，而不是六层普遍居首。</figcaption></figure>
+<figure><img src="reclosure_v3/layer_specific_shap/figures_v2/figure_layer_shap_classes_v2.png" alt="六层细胞大类SHAP贡献"><figcaption><b>分层SHAP图3｜细胞大类贡献随层次变化。</b>L1–L2主要依赖抑制性细胞；L3中兴奋性与抑制性贡献接近；L4的非神经元贡献增加并由Oligo居首；L5仍以抑制性贡献为主；L6三类较均衡。类别比例受到每层mask保留特征数影响，因此描述的是模型依赖结构，而非细胞数量或生物效应大小。</figcaption></figure>
+<div class="panel"><b>综合解释。</b>六层并不共享单一首要细胞类型，支持层特异的多细胞组织模式。L4和L6兼具较高预测性能与较分散贡献，更适合形成候选解释；L1的Sncg占41.2%，但该层仅有8个mask保留特征且OOF R²为0.231，高集中度可能部分源于较小的特征集合。分层SHAP仍是模型解释，不是独立显著性检验，也不证明细胞类型对层厚度的因果作用。</div>
+
+
+<h2>6. 稳健性、替代解释与分析边界</h2>
+<figure><img src="nature_figure/standalone/figure_pipeline_sensitivity.png" alt="八分支效应一致性"><figcaption><b>图10｜pipeline间效应图谱的一致性。</b>分支间Spearman相关范围较宽，显著集合Jaccard总体较低，说明预处理选择会改变发现集合，不能只报告最佳分支。</figcaption></figure>
+<ul>
+<li><b>探索性选择：</b>八个pipeline使用同一数据比较后按FDR发现数和mean |r|选择最终分支。分支内FDR控制不等于对“八分支搜索”进行校正；独立确认应预先固定pipeline。</li>
+<li><b>空间零模型：</b>spin检验控制皮层空间自相关，但结果仍依赖BN分区、所用皮层表面、Alexander–Bloch旋转及仅1,000次旋转所决定的p值分辨率。</li>
+<li><b>跨物种映射：</b>原始猕猴细胞类型向人类subclass的同源映射存在多来源与未解析类别；D99→BN映射每层丢弃标签106、118和194。映射误差会传递至相关与SHAP。</li>
+<li><b>相关而非因果：</b>层厚度与估计细胞类型分布的空间共变不能确定发育、细胞密度或层厚度变化的因果方向。</li>
+<li><b>组成解释：</b>非CLR分支的各特征不是相互独立的绝对效应；未闭合敏感性特征不满足严格闭合，而reclosure主分析已在BN目标空间满足闭合约束。</li>
+</ul>
+
+<h2>7. 补充敏感性分支：within-layer + CLR + absolute thickness</h2>
+<p>该分支具有最高平均OOF R²（0.618）和14项FDR发现，但整体层序统计量为−0.0789，p=0.636111。它说明层内对数比特征可以预测厚度，却不支持六层按正确层序形成整体匹配，因此保留为替代问题定义下的敏感性结果。</p>
+<figure><img src="nature_figure/standalone/figure_supp_within_clr_absolute_heatmap.png" alt="层内CLR绝对厚度关联"><figcaption><b>补充图S1｜层内+CLR+绝对厚度关联。</b>局部显著结果不等价于整体正确层序。</figcaption></figure>
+<figure><img src="permutation_corrected_v10/figures/figure_permutation_sensitivity_corrected.png" alt="层内CLR绝对厚度层序置换"><figcaption><b>补充图S2｜替代分支的层序置换。</b>观测统计量位于零分布内部（p=0.636111）。</figcaption></figure>
+
+<section><h2 id="interpretation">结果解释：可以说什么、不能说什么</h2>
+<p><b>支持的解释：</b>同源细胞类型的层间空间分配与人脑皮层相对层厚度之间存在有层次选择性的空间共变；这种对应不是仅由皮层平滑空间梯度造成，因为局部检验使用了空间旋转零模型，整体层序也优于错配层序。</p>
+<p><b>SHAP层面的解释：</b>模型贡献分布较为分散而非由单一细胞类型垄断。重闭合主分支的折外R²为0.5207，平均折外Pearson相关为0.7124；最高单一贡献为Chandelier subclass（相对贡献0.0782），前五项合计0.3233。类别汇总为抑制性0.4155、兴奋性0.3985、非神经元0.1860。它们反映预测依赖度，不表示相应细胞群直接调控厚度。</p>
+<p><b>替代解释：</b>共同发育梯度、皮层层级、髓鞘化、细胞密度、供体和物种差异、图谱边界及跨物种映射误差都可能同时影响两类空间图。当前设计降低了空间自相关和处理流程选择带来的偏差，但不能排除这些混杂。</p>
+<div class="evidence"><b>证据等级：</b>“31项FDR关联”和“whole-match p=0.005556”属于本数据集内的统计证据；“闭合前后高度一致”属于处理稳健性证据；“细胞类型塑造人类皮层层厚度”仍是假说，需要独立数据、其他供体或物种复现及机制实验验证。</div>
+</section><h2>8. 结论与下一步验证</h2>
+<p>现有证据支持把“跨层归一化、无CLR、相对厚度”作为后续主分析pipeline：它与层间分配这一科学问题一致，并在局部空间效应、整体正确层序与解释性预测三类证据之间取得最平衡的表现。结果同时划定了明确边界：层内CLR更偏向预测而非正确层序，处理顺序可在Layer IV产生方向反转，且主特征在BN空间不是严格闭合组成。</p>
+<p>最有价值的下一步不是继续增加同一数据上的候选pipeline，而是固定当前pipeline，在独立供体或替代人脑层厚度数据上复现31项FDR发现、整体层序统计量和reclosure后的主要SHAP贡献；若目标改为严格的BN组成解释，则应在relabel后重新闭合，并将该版本作为独立、预先定义的分析重新测试。</p>
+
+<h2>9. 可复现资源</h2>
+<p><a href="nature_figure/feature_strategy_data/feature_strategy_summary.csv">特征策略汇总</a> · <a href="nature_figure/feature_strategy_data/feature_strategy_correlations.csv">逐图相关</a> · <a href="nature_figure/feature_strategy_data/feature_strategy_mask_audit.csv">mask审计</a> · <a href="nature_figure/feature_strategy_data/feature_strategy_closure_audit.csv">闭合审计</a> · <a href="nature_figure/feature_strategy_data/run_feature_strategy_validation.py">前置验证代码</a> · <a href="nature_figure/feature_strategy_brains/plot_feature_strategy_brains_surfplot.py">Surfplot代码</a> · <a href="nature_figure/shap_all_branches/shap_all_branch_summary.csv">八分支SHAP汇总</a> · <a href="nature_figure/shap_data/shap_ctype_total.csv">最终细胞类型贡献</a> · <a href="nature_figure/standalone/standalone_figure_contract.json">图形契约</a>。</p>
+<p class="muted">报告版本：v11 figure draft更新版；生成日期：2026-08-14。v2及未闭合结果均保留为敏感性与审计依据。</p>
+<p><a href="reclosure_v3/branch_summary.csv">reclosure八分支汇总</a> · <a href="reclosure_v3/reclosure_vs_unclosed_summary.csv">闭合前后一致性</a> · <a href="reclosure_v3/audit.json">闭合审计</a> · <a href="reclosure_v3/shap/shap_all_branch_summary.csv">reclosure SHAP汇总</a> · <a href="reclosure_v3/figures_optimized/optimized_figure_qa.json">比较图QA</a> · <a href="reclosure_v3/figures/primary_figure_qa.json">主图QA</a>。</p><p><a href="reclosure_v3/layer_specific_shap/layer_specific_shap_contributions.csv">分层SHAP贡献CSV</a> · <a href="reclosure_v3/layer_specific_shap/layer_specific_model_performance.csv">分层模型性能CSV</a> · <a href="reclosure_v3/layer_specific_shap/layer_specific_shap_classes.csv">细胞大类贡献CSV</a> · <a href="reclosure_v3/layer_specific_shap/layer_specific_shap_stability.csv">折间稳定性CSV</a>。</p><section><h2>Figure draft：文章结果段候选图</h2>
+<p>新版草案参考纵向流程引导式版面，将方法链和统计证据组织为连续阅读路径：跨物种数据与同源映射、跨层归一化和目标空间reclosure、层–细胞类型关联、代表性空间图、精确层序检验及分层预测。</p>
+<figure><img src="figure_draft_v6/figure_draft_v6_wide_heatmap.png" alt="包含分析流程和显著Surfplot脑图的文章figure draft"><figcaption><b>Figure draft｜跨物种层细胞组成与皮层层厚度的空间对应。</b><b>a，</b>双输入流程：上方从猕猴层状组织与空间转录组出发，经六层细胞组成、同源细胞类型映射、脑区重标记与重新闭合；下方从BigBrain层厚度出发，经同一脑区体系映射与相对厚度计算。两条数据流在层匹配的空间关联、空间旋转检验和精确层序置换检验处汇合。<b>b，</b>主pipeline中97个mask允许的层–细胞类型相关，星号表示1,000次空间spin后经FDR-BH校正显著。<b>c，</b>最强显著实例Layer IV–Pax6的细胞组成与相对层厚度Surfplot空间图（r=0.8889，spin p=0.000999，FDR q=0.00745）。<b>d，</b>全部720种层标签排列的精确检验（4/720，p=0.005556）。<b>e，</b>六个独立五折OOF RidgeCV模型的预测性能及各层首要SHAP细胞类型。该图支持层序整体匹配与层特异预测结构，但不构成因果证据。</figcaption></figure>
+<p><a href="figure_draft_v6/figure_draft_v6_wide_heatmap.svg">Figure draft SVG</a> · <a href="figure_draft_v6/figure_draft_v6_wide_heatmap.pdf">PDF</a> · <a href="figure_draft_v2/figure_brain_layer4_pax6_spin_significant.png">Surfplot示例</a> · <a href="figure_draft_v2/layer4_pax6_brain_source.csv">脑图源数据</a> · <a href="figure_draft_v6/figure_draft_v6_qa.json">Figure QA</a>。</p></section></main></body></html>

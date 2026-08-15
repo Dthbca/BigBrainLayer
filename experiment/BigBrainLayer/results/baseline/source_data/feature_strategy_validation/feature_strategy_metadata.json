@@ -1,0 +1,81 @@
+{
+  "source": "real macaque layer counts",
+  "source_atlas": "D99",
+  "target_atlas": "BN left hemisphere",
+  "mapping_column": "subclass",
+  "unmapped": "drop",
+  "mask": {
+    "kind": "external",
+    "threshold": null,
+    "semantics": "True=present"
+  },
+  "mapping_unresolved": 35,
+  "dropped_labels_sum": {
+    "l1": [
+      106,
+      118,
+      194
+    ],
+    "l2": [
+      106,
+      118,
+      194
+    ],
+    "l3": [
+      106,
+      118,
+      194
+    ],
+    "l4": [
+      106,
+      118,
+      194
+    ],
+    "l5": [
+      106,
+      118,
+      194
+    ],
+    "l6": [
+      106,
+      118,
+      194
+    ]
+  },
+  "dropped_labels_mean": {
+    "l1": [
+      106,
+      118,
+      194
+    ],
+    "l2": [
+      106,
+      118,
+      194
+    ],
+    "l3": [
+      106,
+      118,
+      194
+    ],
+    "l4": [
+      106,
+      118,
+      194
+    ],
+    "l5": [
+      106,
+      118,
+      194
+    ],
+    "l6": [
+      106,
+      118,
+      194
+    ]
+  },
+  "comparison_scope": "present layer-cell-type combinations only",
+  "mask_applied_before_statistics": true,
+  "n_present_layer_ctype_pairs": 97,
+  "n_possible_layer_ctype_pairs": 138
+}

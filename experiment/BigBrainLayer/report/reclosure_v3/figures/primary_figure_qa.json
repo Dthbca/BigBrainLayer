@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "backend": "Python/matplotlib",
+  "primary_branch": "within_region_cross_layer__clr_false__thickness_relative",
+  "figures": 3,
+  "n_tests": 97,
+  "n_sig": 31,
+  "finite_r": true
+}

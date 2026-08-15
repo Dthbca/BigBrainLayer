@@ -1,0 +1,7 @@
+,Astro,Chandelier,Endo,L2/3 IT,L4 IT,L5 ET,L5 IT,L5/6 NP,L6 CT,L6 IT,L6 IT Car3,L6b,Lamp5,Lamp5_Lhx6,Micro-PVM,OPC,Oligo,Pax6,Pvalb,Sncg,Sst,VLMC,Vip
+Layer I,True,False,True,False,False,False,False,False,False,False,False,False,True,False,True,True,False,True,False,True,False,True,False
+Layer II,True,True,True,True,False,False,False,False,False,False,False,False,True,True,True,True,False,True,True,True,True,False,True
+Layer III,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+Layer IV,True,True,True,True,True,True,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,False,True
+Layer V,True,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True,False,True,False,True
+Layer VI,True,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,False,True,False,True,False,False

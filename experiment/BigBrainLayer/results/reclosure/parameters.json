@@ -1,0 +1,12 @@
+{
+  "primary": "post-relabel mask-aware reclosure",
+  "seed": 42,
+  "n_spins": 1000,
+  "spin_method": "Alexander-Bloch",
+  "n_jobs": 8,
+  "metric": "pearsonr",
+  "correction": "fdr_bh",
+  "n_tested_per_branch": 97,
+  "relabel_method": "mean",
+  "unclosed_reference": "/share/user_data/dthbca/public/experiment/BigBrainLayer/results/homolomap_layer_branch_compare_20260812_060115"
+}

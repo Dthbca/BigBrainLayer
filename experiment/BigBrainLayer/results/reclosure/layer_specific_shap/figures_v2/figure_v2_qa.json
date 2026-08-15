@@ -1,0 +1,15 @@
+{
+  "backend": "Python/matplotlib",
+  "core_conclusion": "SHAP contributions are layer-specific; Layers IV and VI have the strongest OOF performance.",
+  "layout_changes": [
+    "fixed right label column",
+    "increased heatmap bottom margin",
+    "caption-only heatmap note",
+    "legend-only bottom band"
+  ],
+  "source_data": [
+    "layer_specific_model_performance.csv",
+    "layer_specific_shap_contributions.csv",
+    "layer_specific_shap_classes.csv"
+  ]
+}

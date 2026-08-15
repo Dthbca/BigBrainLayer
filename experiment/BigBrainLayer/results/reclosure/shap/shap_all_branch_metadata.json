@@ -1,0 +1,7 @@
+{
+  "closure": "post-relabel mask-aware",
+  "model": "5-fold OOF RidgeCV",
+  "explainer": "shap.LinearExplainer",
+  "random_state": 42,
+  "mapping_unresolved": 35
+}
