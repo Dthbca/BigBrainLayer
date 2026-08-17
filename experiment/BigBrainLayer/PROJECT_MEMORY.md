@@ -60,3 +60,8 @@ Map macaque spatial-transcriptomic cell-type compositions to homologous human ce
 - Dated source archive: `archives/HomoloMap_source_20260817.zip`
 - GitHub repository: `git@github.com:Dthbca/BigBrainLayer.git`
 - GitHub experiment path: `experiment/BigBrainLayer`
+## Archive status — 2026-08-17
+
+- Local complete archive passed validation: 21 HomoloMap Python files, compileall rc=0, report missing links=0.
+- GitHub main contains the complete archive and memory at commit `96a7e5d`.
+- Remote shared-storage synchronization is pending: io SSH returned connection refused, while n03 could not resolve github.com. No remote files were modified during the failed attempts. Resume by verifying io connectivity first, then upload the dated ZIP and validate SHA256 before extraction.
