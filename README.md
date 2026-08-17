@@ -7,3 +7,6 @@ The reproducible comparison of layer cell-type composition and BigBrain layer th
 - [Analysis overview and reproduction notes](experiment/BigBrainLayer/README.md)
 - [Integrated HTML report](experiment/BigBrainLayer/report/layer_analysis_report.html)
 - [Editable manuscript figure](experiment/BigBrainLayer/figures/figure_draft_v6_wide_heatmap.svg)
+- [Complete HomoloMap source snapshot](experiment/BigBrainLayer/code/HomoloMap)
+- [Project memory and validated decisions](experiment/BigBrainLayer/PROJECT_MEMORY.md)
+- [Agent workflow playbook](experiment/BigBrainLayer/AGENT_PLAYBOOK.md)

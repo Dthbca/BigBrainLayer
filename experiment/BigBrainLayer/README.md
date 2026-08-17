@@ -42,3 +42,9 @@ The unreclosed continuous-feature analysis is retained as a sensitivity analysis
 - `code/build_figure_draft_v6_wide_heatmap.py`: manuscript figure assembly.
 
 Large TIFF exports, temporary previews, extracted PDF assets, caches, and remote raw datasets are intentionally excluded. The report and numerical tables needed for review are included.
+## Source archive and project memory
+
+- `code/HomoloMap/`: complete 21-file HomoloMap Python source snapshot used at archive time.
+- `archives/HomoloMap_source_20260817.zip`: portable source archive; SHA256 `ebd8ff293094eb5a76fc8f147cc53e86030fa6c21eaf14939205e1076db3d812`.
+- `PROJECT_MEMORY.md`: consolidated scientific decisions, validated results, remote-execution lessons, and report-production experience.
+- `AGENT_PLAYBOOK.md`: reusable contract for remote runners, figure/report generation, validation, and GitHub publishing.
