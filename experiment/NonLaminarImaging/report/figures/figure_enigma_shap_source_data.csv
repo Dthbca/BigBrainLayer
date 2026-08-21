@@ -1,0 +1,141 @@
+phenotype,outcome,feature,mean_abs_shap,relative_shap,total_mean_abs_shap,branch,branch_label
+enigma,adhd,Astro,0.0026625325228583,0.0299379737057149,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Chandelier,0.0105185216775111,0.1182720671769531,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Endo,0.0038898401085437,0.0437380313251536,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L2/3 IT,0.0026650513232401,0.0299662955305018,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L4 IT,0.0027356670802199,0.0307603112495666,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L5 ET,0.00183512571918,0.0206344692715763,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L5 IT,0.0022916962419832,0.0257682267709263,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L5/6 NP,0.0070656037166231,0.0794468636410049,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L6 CT,0.0064239784714627,0.0722323190096727,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L6 IT,0.0041457962833776,0.0466160465855147,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L6 IT Car3,0.0027213036722601,0.0305988066196197,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,L6b,0.0028939255230421,0.0325397964048616,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Lamp5,0.0023724443314269,0.026676172179217,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Lamp5_Lhx6,0.005859257496033,0.0658824992165494,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Micro-PVM,0.0032422378854659,0.036456280525936,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,OPC,0.0100018109111684,0.1124620824336982,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Oligo,0.0062186640312494,0.0699237281249646,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Pax6,0.0025022955864998,0.0281362420287492,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Pvalb,0.0015378212084136,0.0172915262090973,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Sncg,0.0025226900110101,0.0283655604462677,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Sst,0.001557621094637,0.0175141595358426,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,VLMC,0.0016775854484833,0.0188630593672029,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Vip,0.0015934906192863,0.0179174826414079,0.0889349609639767,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Astro,0.0021583672144437,0.0313962603645074,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Chandelier,0.003534667110005,0.0514163336734048,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Endo,0.0011234925801007,0.0163426618632761,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L2/3 IT,0.0021007010906093,0.0305574315377902,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L4 IT,0.001543863366748,0.0224575020901331,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L5 ET,0.0061598998456798,0.0896037606946753,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L5 IT,0.0092435860694012,0.1344599904013307,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L5/6 NP,0.0020386937806428,0.0296554545084953,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L6 CT,0.0050509136085311,0.073472112470419,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L6 IT,0.0023511982352388,0.0342012385418631,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L6 IT Car3,0.0037176595626914,0.0540781970721984,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,L6b,0.0029326060272261,0.0426585716096716,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Lamp5,0.0037200522202599,0.0541130013907037,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Lamp5_Lhx6,0.0019709652601012,0.0286702550249246,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Micro-PVM,0.0032512419862855,0.0472935463559401,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,OPC,0.0017694596071443,0.0257390930322755,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Oligo,0.0020970208382737,0.0305038974775237,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Pax6,0.0005464565844404,0.0079489222631708,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Pvalb,0.0010657478727741,0.0155026899373846,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Sncg,0.0045472024628187,0.0661449782490229,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Sst,0.0021354318514152,0.0310626356576546,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,VLMC,0.0020722958404239,0.0301442402028896,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,parkinson,Vip,0.0036144737813481,0.0525772255807439,0.068745996796604,ratio_none_subclass,Ratio · subclass
+enigma,adhd,Astro,0.0016622370540257,0.0167114444890247,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Chandelier,0.0063024649901504,0.0633623787725328,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Endo,0.0056049280910017,0.0563496310173689,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L2/3 IT,0.0067190405925151,0.0675504577457095,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L4 IT,0.0056876571306367,0.0571813545974331,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L5 ET,0.00368692538568,0.0370668243550126,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L5 IT,0.0020608137908173,0.020718570305031,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L5/6 NP,0.0082772043286832,0.083215592101077,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L6 CT,0.0032425414494189,0.0325991718835107,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L6 IT,0.0033632933572924,0.0338131616694347,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L6 IT Car3,0.0048205041877706,0.0484633572256961,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,L6b,0.004457498722677,0.0448138502769537,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Lamp5,0.0009601541322307,0.0096529929006338,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Lamp5_Lhx6,0.0049935536395946,0.0502031249086565,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Micro-PVM,0.0028847628934383,0.0290022141191814,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,OPC,0.0092936462562542,0.0934344792374096,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Oligo,0.0089255132036604,0.089733421642708,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Pax6,0.0021171989063,0.0212854429572282,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Pvalb,0.0027515511742269,0.0276629585385786,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Sncg,0.0020962260695777,0.0210745907229977,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Sst,0.0023220479187712,0.0233449102830542,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,VLMC,0.0014059913806715,0.0141352563722689,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Vip,0.0058312336781062,0.0586248138784974,0.0994669883335017,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Astro,0.0017271798983302,0.026578336231641,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Chandelier,0.0019705523666422,0.0303234210942976,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Endo,0.000832728117663,0.0128142574622284,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L2/3 IT,0.0024010838192815,0.0369485617166538,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L4 IT,0.0013405989036281,0.0206295177745212,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L5 ET,0.0038128448713476,0.0586731429005965,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L5 IT,0.0083073161798399,0.1278353475650077,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L5/6 NP,0.0009399305202626,0.0144639185681087,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L6 CT,0.0018099207690926,0.0278515763181825,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L6 IT,0.0034388234472934,0.0529175946939724,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L6 IT Car3,0.0048510134481717,0.0746487766644158,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,L6b,0.0014734077550401,0.022673218208261,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Lamp5,0.0018797721318457,0.028926468984132,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Lamp5_Lhx6,0.0014089170522076,0.0216808169040575,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Micro-PVM,0.0021954053813234,0.0337835233295498,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,OPC,0.0013973245965364,0.0215024288942871,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Oligo,0.0024752507716369,0.0380898639046215,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Pax6,0.0032480949380323,0.0499826100678763,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Pvalb,0.0026694152896365,0.041077722811871,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Sncg,0.0025312295861328,0.0389512818466435,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Sst,0.0023438174026308,0.0360673297859237,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,VLMC,0.000834593910636,0.0128429688159348,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,parkinson,Vip,0.0110952791244134,0.1707373154572154,0.0649845002816258,ratio_clr_subclass,Ratio–CLR · subclass
+enigma,adhd,Astro,0.0015240165441312,0.0188239387458773,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Chandelier,0.0019604717134992,0.0242148286316478,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Endo,0.0052597263257457,0.0649656767553997,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L2/3 IT,0.005746624265883,0.0709796121263327,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L4 IT,0.0047574088818185,0.0587612868936998,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L5 ET,0.0048855499520142,0.0603440253918375,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L5 IT,0.0024373150765809,0.0301045745747565,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L5/6 NP,0.0031953522639995,0.0394674949695601,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L6 CT,0.0007643048549272,0.0094403356890904,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L6 IT,0.0012370866037412,0.0152799144745792,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L6 IT Car3,0.0044542234878907,0.0550164828717768,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,L6b,0.0050475915938781,0.0623454878775782,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Lamp5,0.0012304127422192,0.0151974820620362,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Lamp5_Lhx6,0.0008010413234507,0.0098940873467666,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Micro-PVM,0.0045130594580384,0.0557431972256189,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,OPC,0.0048693622744619,0.0601440827784485,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Oligo,0.005546431661005,0.0685069268092917,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Pax6,0.0023532324656248,0.0290660255351637,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Pvalb,0.0022117899248772,0.027318993501065,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Sncg,0.0016732084419981,0.0206666872105459,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Sst,0.0024897574796749,0.0307523185820827,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Sst Chodl,0.0045980225386381,0.056792621413978,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,VLMC,0.0015702658722941,0.0193951887915065,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,adhd,Vip,0.0078353625793722,0.0967787297413591,0.0809616183257651,density_none_subclass,Density · subclass
+enigma,parkinson,Astro,0.0134788975089836,0.0384592535322738,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Chandelier,0.0039401414368651,0.0112423807935639,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Endo,0.0052614242902241,0.0150123888532965,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L2/3 IT,0.0326727016148952,0.0932248141329129,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L4 IT,0.0137412774363205,0.0392079005295896,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L5 ET,0.0062267877707268,0.0177668544038142,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L5 IT,0.0416507711324788,0.1188418834501172,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L5/6 NP,0.0061942505293532,0.0176740160975362,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L6 CT,0.0279662341599192,0.0797958801290989,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L6 IT,0.0076665111905386,0.0218748081872739,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L6 IT Car3,0.0070428274420794,0.0200952552683527,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,L6b,0.0072474126787214,0.0206789970380137,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Lamp5,0.0059704341941747,0.0170354023553101,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Lamp5_Lhx6,0.0085076935103166,0.0242749484125143,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Micro-PVM,0.0154807690178324,0.0441711809244462,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,OPC,0.0137292489248374,0.0391735796533877,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Oligo,0.0154435481208569,0.0440649787730815,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Pax6,0.0129733779374757,0.0370168577166522,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Pvalb,0.0061086881331073,0.0174298814501841,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Sncg,0.0089621835850275,0.025571742085703,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Sst,0.0330965352456229,0.094434135967195,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Sst Chodl,0.0128439019855838,0.0366474247970218,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,VLMC,0.0036638202866972,0.0104539553927806,0.3504721561398119,density_none_subclass,Density · subclass
+enigma,parkinson,Vip,0.0406027180071722,0.1158514800558788,0.3504721561398119,density_none_subclass,Density · subclass

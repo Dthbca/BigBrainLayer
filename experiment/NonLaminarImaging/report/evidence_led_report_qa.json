@@ -1,0 +1,27 @@
+{
+  "core_conclusion": "HomoloMap cell composition is interpretable only where spatial inference and blocked prediction converge.",
+  "backend": "Python",
+  "main_figure": {
+    "png": 278597,
+    "svg": 80215,
+    "pdf": 42085,
+    "tiff": 74810162
+  },
+  "source_data": [
+    "homolomap_evidence_source_data.csv",
+    "homolomap_attribution_source_data.csv"
+  ],
+  "n_convergent_meg": 3,
+  "n_convergent_enigma": 9,
+  "html_images_exist": true,
+  "statistics": {
+    "spatial": "1,000 Alexander-Bloch spins; BH within six MEG or thirteen ENIGMA outcomes per branch",
+    "prediction": "five-fold lobe-wise out-of-fold Ridge",
+    "attribution": "mean absolute held-out linear SHAP"
+  },
+  "review_risks": [
+    "105 regions relative to 71 cluster predictors",
+    "approximately 11.3% source ratio mass was unmapped",
+    "spatial association and SHAP are not causal effects"
+  ]
+}

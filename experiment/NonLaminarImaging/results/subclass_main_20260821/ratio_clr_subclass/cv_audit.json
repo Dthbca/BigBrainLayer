@@ -1,0 +1,6 @@
+{
+  "requested": "BN_lobe_GroupKFold",
+  "used": "GroupKFold",
+  "reason": null,
+  "n_groups": 6
+}

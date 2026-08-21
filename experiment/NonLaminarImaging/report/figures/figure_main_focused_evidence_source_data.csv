@@ -1,0 +1,13 @@
+phenotype,outcome,label,branch,level,oof_r2,q_family
+meg,alpha,Alpha,ratio_none_subclass,Subclass,0.5164653431737392,0.1438561438561434
+meg,alpha,Alpha,ratio_none_cluster,Cluster,0.6387294773433263,0.05274725274725267
+meg,theta,Theta,ratio_none_subclass,Subclass,-0.2227188031717089,0.16183816183816171
+meg,theta,Theta,ratio_none_cluster,Cluster,0.3050653042591524,0.0239760239760234
+enigma,adhd,ADHD,ratio_none_subclass,Subclass,0.5524127797710703,0.0064935064935058495
+enigma,adhd,ADHD,ratio_none_cluster,Cluster,0.4058954935243899,0.0032467532467529247
+enigma,asd,ASD,ratio_none_subclass,Subclass,-0.3132198914582704,0.0064935064935058495
+enigma,asd,ASD,ratio_none_cluster,Cluster,0.3554646773674088,0.0032467532467529247
+enigma,epilepsy_rtle,Right TLE,ratio_none_subclass,Subclass,0.2706579342432758,0.006493506493506175
+enigma,epilepsy_rtle,Right TLE,ratio_none_cluster,Cluster,0.6175990309690256,0.00519480519480494
+enigma,parkinson,Parkinson,ratio_none_subclass,Subclass,0.3581100549405759,0.019480519480519282
+enigma,parkinson,Parkinson,ratio_none_cluster,Cluster,0.4275117106520182,0.008658008658008523

@@ -1,0 +1,71 @@
+phenotype,outcome,feature,mean_abs_shap,relative_shap,total_mean_abs_shap,branch,branch_label
+meg,alpha,Astro,0.0025285444118287,0.0179836806218072,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Chandelier,0.0196631220220032,0.1398493555490198,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Endo,0.0022167001206349,0.0157657610510344,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L2/3 IT,0.0011643840747311,0.008281409344888,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L4 IT,0.0038454406360988,0.0273497969528264,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L5 ET,0.0074016584720009,0.0526425643977069,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L5 IT,0.0017799898470458,0.0126597613906178,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L5/6 NP,0.0025803598892975,0.0183522060840081,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L6 CT,0.0030101527721008,0.0214090074206595,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L6 IT,0.0021790152466805,0.0154977362007292,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L6 IT Car3,0.0054791980686468,0.0389695145037619,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,L6b,0.0029172272291935,0.0207480962349845,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Lamp5,0.0077546565706249,0.0551531807966366,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Lamp5_Lhx6,0.0063200494267837,0.0449498730865126,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Micro-PVM,0.0085991732776507,0.0611596083159176,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,OPC,0.0102685955431013,0.0730329836477289,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Oligo,0.0069283253149643,0.0492760930460321,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Pax6,0.0018794383659444,0.0133670657170982,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Pvalb,0.0101478372083641,0.0721741182411434,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Sncg,0.0103023160792396,0.0732728130727016,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Sst,0.0047355153657495,0.0336802452505494,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,VLMC,0.0056165817226994,0.0399466236047851,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Vip,0.0132838823189236,0.0944785054688498,0.1406021639843094,ratio_none_subclass,Ratio · subclass
+meg,alpha,Astro,0.0073441950583773,0.0466702802350516,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Chandelier,0.012514666570574,0.0795271627801738,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Endo,0.0045044773768201,0.0286246783776323,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L2/3 IT,0.0033038584206778,0.0209950848424275,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L4 IT,0.0044770846164244,0.0284506051410256,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L5 ET,0.0043342651664339,0.0275430279727874,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L5 IT,0.003141629690015,0.0199641671908634,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L5/6 NP,0.004522507024416,0.0287392516833723,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L6 CT,0.0060220311233378,0.0382683027719686,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L6 IT,0.0050943908828553,0.032373411686356,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L6 IT Car3,0.0071641892703584,0.0455263944172052,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,L6b,0.0060097038936054,0.0381899667172263,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Lamp5,0.0028332530616757,0.0180045210283999,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Lamp5_Lhx6,0.0090536320032288,0.0575332680269356,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Micro-PVM,0.0054344764151819,0.0345345589559216,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,OPC,0.0074428057987445,0.04729692357044,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Oligo,0.0090240976982977,0.0573455858811425,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Pax6,0.0035329594893426,0.0224509572684382,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Pvalb,0.0131257724383258,0.0834105675474163,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Sncg,0.0091334449936203,0.0580404569834327,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Sst,0.0023332352831064,0.0148270496155566,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,VLMC,0.0040520289249028,0.0257494965673656,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Vip,0.0229647179758144,0.1459342807388599,0.1573634231761374,ratio_clr_subclass,Ratio–CLR · subclass
+meg,alpha,Astro,0.0064657234790074,0.0451028064715237,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Chandelier,0.0048861804314232,0.0340844224314492,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Endo,0.0034855167734692,0.0243138434542464,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L2/3 IT,0.0059589731779454,0.0415678794316663,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L4 IT,0.0066387707887329,0.0463099288216067,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L5 ET,0.0036633067250919,0.0255540489481339,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L5 IT,0.0062262937334264,0.0434326216092219,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L5/6 NP,0.0048018773929246,0.0334963515616215,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L6 CT,0.0110908592374169,0.0773662652620769,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L6 IT,0.0067638497121813,0.0471824391441219,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L6 IT Car3,0.0055754153647064,0.0388923035464112,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,L6b,0.0028408155693057,0.0198166153037149,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Lamp5,0.0025702579541225,0.0179292924392864,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Lamp5_Lhx6,0.0028090918625734,0.0195953209334948,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Micro-PVM,0.0056078527944746,0.0391185766188709,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,OPC,0.0092520170143105,0.064539093609947,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Oligo,0.011805851467014,0.082353820988031,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Pax6,0.0049866034008371,0.0347849407523267,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Pvalb,0.0076807473518327,0.0535784220421937,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Sncg,0.0052813104638169,0.0368407223938588,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Sst,0.0048864598662066,0.0340863716785823,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Sst Chodl,0.0031502038143552,0.0219748081473059,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,VLMC,0.0029668852947171,0.0206960371419072,0.1433552362886699,density_none_subclass,Density · subclass
+meg,alpha,Vip,0.0139603726187768,0.0973830672683996,0.1433552362886699,density_none_subclass,Density · subclass

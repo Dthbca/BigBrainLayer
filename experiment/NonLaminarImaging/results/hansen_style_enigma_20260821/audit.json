@@ -1,0 +1,13 @@
+{
+  "reference": "Hansen et al. Nature Neuroscience 2022 disease workflow",
+  "model": "ordinary least squares with intercept",
+  "predictors": "z-scored mapped/reclosed ratio features",
+  "outcome": "z-scored ENIGMA cortical-thickness effect map",
+  "statistic": "adjusted R2",
+  "null": "Alexander-Bloch response-map rotation and complete model refit",
+  "n_spins": 1000,
+  "seed": 42,
+  "multiple_testing": "Benjamini-Hochberg across 13 disorders separately by resolution",
+  "dominance_policy": "display only disorders with spin_q_bh_13_disorders < 0.05",
+  "generalization": "existing lobe-wise OOF Ridge and held-out SHAP reported separately"
+}

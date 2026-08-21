@@ -1,0 +1,7 @@
+branch,mean_oof_r2,n_positive,n_total_fdr,n_outcomes,best_outcome,best_oof_r2
+ratio_none_subclass,-0.014310901685940297,2,0,6,alpha,0.5164653431737392
+ratio_clr_subclass,0.08242448739980517,4,0,6,alpha,0.489255405685858
+density_none_subclass,0.16958084568137174,4,0,6,gamma2,0.3995774881341487
+ratio_none_cluster,0.22463747893385458,5,4,6,alpha,0.6387294773433263
+ratio_clr_cluster,0.14652514295018568,4,4,6,alpha,0.5771603968103731
+density_none_cluster,0.21189022866024884,6,0,6,gamma2,0.4036371260277516

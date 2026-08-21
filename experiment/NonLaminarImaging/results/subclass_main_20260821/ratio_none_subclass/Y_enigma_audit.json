@@ -1,0 +1,13 @@
+{
+  "source": "/data100/home/dthbca/project/CellAlign/HomoloMap/datasets/features/enigma_fgc_smoothed.csv",
+  "source_shape": [
+    3670,
+    13
+  ],
+  "shape": [
+    105,
+    13
+  ],
+  "relabel": "FGC_smoothed->BN surf_relabel mean",
+  "na_total": 0
+}

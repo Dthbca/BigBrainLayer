@@ -1,0 +1,14 @@
+outcome,"Upper-layer
+excitatory","Deep-layer
+projection","SST/PVALB/VIP
+interneurons","Oligodendroglial
+lineage","Vascular /
+other glia"
+ADHD,2,2,1,1,1
+"Right temporal
+lobe epilepsy",1,2,2,2,1
+"Autism spectrum
+disorder",2,1,2,0,1
+Parkinson disease,0,1,1,2,1
+Alpha oscillation,0,0,2,1,1
+Theta oscillation,0,1,2,0,0

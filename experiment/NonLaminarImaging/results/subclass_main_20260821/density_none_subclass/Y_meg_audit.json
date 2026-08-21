@@ -1,0 +1,24 @@
+{
+  "source": "/data100/home/dthbca/project/CellAlign/tmp/cluster_results/hcps1200_meg_fgc.csv",
+  "shape": [
+    105,
+    6
+  ],
+  "original_index_head": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "forced_bn_odd_labels": true,
+  "na_total": 14,
+  "na_by_outcome": {
+    "delta": 2,
+    "theta": 3,
+    "alpha": 2,
+    "beta": 3,
+    "gamma1": 2,
+    "gamma2": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "model": "ordinary least squares with intercept",
+  "predictors": "z-scored mapped/reclosed ratio features",
+  "outcome": "z-scored MEG band map",
+  "statistic": "adjusted R2",
+  "null": "Alexander-Bloch response-map rotation and complete model refit",
+  "n_spins": 1000,
+  "seed": 42,
+  "multiple_testing": "Benjamini-Hochberg across six bands separately by resolution",
+  "dominance_policy": "show dominance only where spin_q_bh_six_bands < 0.05",
+  "generalization": "reported separately using existing lobe-wise OOF Ridge and held-out linear SHAP"
+}

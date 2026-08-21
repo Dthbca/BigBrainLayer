@@ -1,0 +1,7 @@
+branch,mean_oof_r2,n_positive,n_total_fdr,n_outcomes,best_outcome,best_oof_r2
+ratio_none_subclass,-0.31167564812752946,5,7,13,adhd,0.5524127797710703
+ratio_clr_subclass,-0.3084251409351969,3,8,13,adhd,0.513476548909167
+density_none_subclass,-0.2183898303364803,3,10,13,parkinson,0.6032192356943278
+ratio_none_cluster,-0.04165786323734562,6,9,13,epilepsy_rtle,0.6175990309690256
+ratio_clr_cluster,-0.033377266043442995,5,10,13,adhd,0.5333686318152849
+density_none_cluster,-0.05596085770719988,6,10,13,parkinson,0.7166444978150276
